@@ -22,6 +22,8 @@ config/sslcerts/*.pem
 access.log
 public/dist/
 
+config/env/development.js
+
 # Sublime editor
 # ==============
 .sublime-project
