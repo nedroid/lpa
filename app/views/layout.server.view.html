@@ -36,7 +36,7 @@
 
 	<!--Application CSS Files-->
 	{% for cssFile in cssFiles %}
-		<link rel="stylesheet" href="{{cssFile}}">
+	<link rel="stylesheet" href="{{cssFile}}">
 	{% endfor %}
 
 	<!-- HTML5 Shim -->
@@ -60,7 +60,7 @@
 
 	<!--Application JavaScript Files-->
 	{% for jsFile in jsFiles %}
-		<script type="text/javascript" src="{{jsFile}}"></script>
+	<script type="text/javascript" src="{{jsFile}}"></script>
 	{% endfor %}
 
 	{% if process.env.NODE_ENV === 'development' %}
