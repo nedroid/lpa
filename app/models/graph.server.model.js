@@ -1,23 +1,22 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-  deepPopulate = require('mongoose-deep-populate'),
   Schema = mongoose.Schema;
 
-var ProtocolSchema = new Schema({
+var GraphSchema = new Schema({
   title: {
     type: String,
     default: '',
     trim: true,
     required: 'Title cannot be blank'
   },
-  processes: { 
+  nodes: [{ 
     type: Schema.ObjectId, 
-    ref: 'Graph' 
-  },
-  finalstatemachines: [{ 
+    ref: 'Node'
+  }],
+  links: [{ 
     type: Schema.ObjectId, 
-    ref: 'Graph' 
+    ref: 'Link'
   }],
   user: {
     type: Schema.ObjectId,
@@ -29,6 +28,4 @@ var ProtocolSchema = new Schema({
   }
 });
 
-ProtocolSchema.plugin(deepPopulate);
-
-mongoose.model('Protocol', ProtocolSchema);
+mongoose.model('Graph', GraphSchema);

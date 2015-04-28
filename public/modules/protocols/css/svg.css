@@ -1,25 +1,18 @@
-.node circle {
+g.node circle {
   fill: #ddd;
-  stroke: #fff;
+  stroke: #000;
   stroke-width: 1.5px;
 }
-.node text {
+g.node text {
   font: 10px sans-serif;
   pointer-events: none;
 }
-path.link {
+g.link path {
   fill: none;
   stroke: #666;
   stroke-width: 3px;
 }
-
-.link {
-  stroke: #000;
-  stroke-width: 1.5px;
-}
-
-.node {
-  fill: #000;
-  stroke: #fff;
-  stroke-width: 1.5px;
+g.link text {
+  font: 10px sans-serif;
+  pointer-events: none;
 }
