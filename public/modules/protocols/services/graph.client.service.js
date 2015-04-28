@@ -216,34 +216,54 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       return links;
     };
     
-    Graph.prototype.addNode = function (type) {
+    Graph.prototype.addLink = function () {
+
       var this_ = this;
+      
+      window.temp = window.temp || {};
+
+      if(!this_.values.svg.selected.node) {
+        Messenger.post('Select source node and click add link.', 'info');
+        return;
+      } else if(window.temp.sourceNode) {
+        this_.values.data.links.push({
+          source: nodeData(window.temp.sourceNode), 
+          target: nodeData(this_.values.svg.selected.node)
+        });
+        window.temp.sourceNode = null;
+        this_.build();
+        Messenger.post('Link added.', 'success');
+      } else {
+        window.temp.sourceNode = this_.values.svg.selected.node;
+        Messenger.post('Select target node and click add link.', 'info');
+      }
+    };
+
+    Graph.prototype.addNode = function (type) {
       if (!type) {
         Messenger.post('No type selected!', 'error');
         return;
-      } else if(this_.values.svg.selected.node) {  
-        this_.values.data.nodes.push({
-          _id: uid(),
-          label: label(this_.values.data.nodes.length + 1),
-          size: NODES.SIZE[type],
-          type: NODES.TYPE[type],
-          x: nodeData(this_.values.svg.selected.node).x + random(-15, 15),
-          y: nodeData(this_.values.svg.selected.node).y + random(-15, 15),
-        });
-      
+      } 
+      var
+      this_ = this,
+      node = {
+        _id: uid(),
+        label: label(this_.values.data.nodes.length + 1),
+        size: NODES.SIZE[type],
+        type: NODES.TYPE[type]
+      };
+
+      if(this_.values.svg.selected.node) {  
+        node.x = nodeData(this_.values.svg.selected.node).x + random(-15, 15);
+        node.y = nodeData(this_.values.svg.selected.node).y + random(-15, 15);
+
         this_.values.data.links.push({
           source: nodeData(this_.values.svg.selected.node), 
-          target: this_.values.data.nodes[this_.values.data.nodes.length - 1],
-          label: 'unknown'
-        });
-      } else {
-        this_.values.data.nodes.push({
-          _id: uid(),
-          label: label(this_.values.data.nodes.length + 1),
-          size: NODES.SIZE[type],
-          type: NODES.TYPE[type]
+          target: node
         });
       }
+
+      this_.values.data.nodes.push(node);
 
       if(this_.values.type === GRAPH.TYPE.PROCESSES) {
         createNewGraph({

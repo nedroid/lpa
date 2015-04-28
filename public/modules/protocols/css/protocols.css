@@ -21,6 +21,9 @@ ul.graphs-tree li {
 ul.graphs-tree li:hover {
   background-color: #ddd;
 }
+ul.graphs-tree li.active {
+  background-color: #ccc;
+}
 ul.graphs-tree ul {
   list-style-type: none;
 }
