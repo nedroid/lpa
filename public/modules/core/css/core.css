@@ -1,5 +1,24 @@
-.content {
-	margin-top: 50px;
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  /*margin-bottom: 60px;*/
+  margin-top: 50px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  /*height: 60px;*/
+  display: none;
+  background-color: #f5f5f5;
+}
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
 }
 .undecorated-link:hover {
 	text-decoration: none;
@@ -13,8 +32,30 @@
 .ng-valid.ng-dirty {
 	border-color: #78FA89;
 }
-.browsehappy.jumbotron.hide,
-body.ng-cloak
-{
+body.ng-cloak,
+.browsehappy.jumbotron.hide{
 	display: block;
+}
+.page-header {
+  margin: 20px 0 15px;
+}
+.navbar-nav a {
+	cursor: pointer;
+}
+h1.app-name-logo {
+	margin-left: -15px;
+	display: inline;
+  position: relative;
+	font: 170px Helvetica, Sans-Serif;
+	letter-spacing: -5px;
+	color: #0000FF;
+	color: rgba(0,0,255,0.5);
+}
+h1.app-name-logo:after {
+	content: "LPAv3";
+	position: absolute;
+	left: 10px;
+	top: 5px;
+	color: #FF0000;
+	color: rgba(255,0,0,0.5);
 }

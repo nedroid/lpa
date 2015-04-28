@@ -10,6 +10,8 @@ var ApplicationConfiguration = (function() {
 		'ui.router', 
 		'ui.bootstrap', 
 		'ui.utils',
+		'pascalprecht.translate',
+		'ui.select',
 		'angulartics',
 		'angulartics.google.analytics'
 	];

@@ -20,6 +20,8 @@
 	"globals": { // Globals variables.
 		"jasmine": true,
 		"angular": true,
+		"d3": true,
+		"Messenger": true,
 		"ApplicationConfiguration": true
 	},
 	"predef": [ // Extra globals.
@@ -36,7 +38,7 @@
 		"inject",
 		"expect"
 	],
-	"indent": 4, // Specify indentation spacing
+	"indent": 2, // Specify indentation spacing
 	"devel": true, // Allow development statements e.g. `console.log();`.
 	"noempty": true // Prohibit use of empty blocks.
 }

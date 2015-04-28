@@ -1,0 +1,25 @@
+.node circle {
+  fill: #ddd;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+.node text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 3px;
+}
+
+.link {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node {
+  fill: #000;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}

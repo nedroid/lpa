@@ -1,0 +1,11 @@
+{
+	"LANGUAGE": "EN",
+	"APP_DESCRIPTION": "Logical Protocol Analyzer",
+	"OFFLINE_APP_DOWNLOAD": "Download offline mode",
+	"SIGNIN": "Sign in",
+	"SIGNUP": "Sign up",
+	
+	"PROTOCOLS": "Protocols",
+	"PROTOCOLS_NEW": "New Protocol",
+	"PROTOCOLS_LIST": "List Protocols"
+}

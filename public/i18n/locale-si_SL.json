@@ -1,0 +1,11 @@
+{
+	"LANGUAGE": "SI",
+	"APP_DESCRIPTION": "Logični Protokolni Analizator",
+	"OFFLINE_APP_DOWNLOAD": "Prenesi offline mode",
+	"SIGNIN": "Prijava",
+	"SIGNUP": "Registracija",
+
+	"PROTOCOLS": "Protokoli",
+	"PROTOCOLS_NEW": "Nov Protokol",
+	"PROTOCOLS_LIST": "Seznam Protokolov" 
+}

@@ -1,0 +1,26 @@
+.fsm-content svg {
+	border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: calc(100vh - 145px);
+  margin-bottom: 10px;
+}
+.fsm-toolbar button {
+	margin-bottom: 10px;
+}
+ul.process-tree {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	list-style-type: none;
+	padding: 10px;
+}
+ul.process-tree li {
+	padding: 4px 10px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+ul.process-tree li:hover {
+	background-color: #ddd;
+}
+ul.process-tree ul {
+	list-style-type: none;
+}

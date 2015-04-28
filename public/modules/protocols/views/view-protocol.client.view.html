@@ -1,0 +1,22 @@
+<section data-ng-controller="ProtocolsController" data-ng-init="findOne()">
+	<lpa-title>
+		{{protocol.title}}
+	</lpa-title>
+	
+	<div class="row page-content">
+		<div class="col-md-2 hidden-xs">
+			<ul class="process-tree"> 
+				<li data-ng-repeat="fsm in protocol.fsms track by $index" data-ng-click="selected.index = $index">
+					Process {{$index}}
+				</li>
+			 </ul>
+		</div>
+		<div class="col-md-10">
+			
+			<protocol>
+				<fsm data-ng-repeat="fsm in protocol.fsms track by $index" data-ng-show="selected.index == $index" data-fsm-data="fsm"></fsm>
+			</protocol>
+			
+		</div>
+	</div>
+</section>
