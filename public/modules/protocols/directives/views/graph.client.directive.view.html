@@ -1,14 +1,14 @@
-<div class="graph-toolbar pull-right">
+<div class="graph-toolbar pull-right" data-ng-show="edit">
   <button type="button" class="btn btn-primary" data-ng-click="graph.addNode('PROCESS')">
-    ADD_PROCESS
+    ADD_NODE
   </button>
   <button type="button" class="btn btn-primary" data-ng-click="graph.removeNode()">
-    REMOVE_PROCESS
+    REMOVE_NODE
   </button>
   <button type="button" class="btn btn-primary" data-ng-click="graph.addLink()">
-    ADD_CONNECTION
+    ADD_LINK
   </button>
-  <button type="button" class="btn btn-primary" data-ng-click="graph.save()">
+  <button type="button" class="btn btn-primary" data-ng-click="save()">
     SAVE
   </button>
 </div>

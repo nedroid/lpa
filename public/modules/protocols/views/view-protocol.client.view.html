@@ -1,4 +1,4 @@
-<section data-ng-controller="ProtocolsController" data-ng-init="findOne()">
+<section data-ng-controller="ProtocolsController" data-ng-init="view()">
   <lpa-title>
     {{protocol.title}}
   </lpa-title>
@@ -6,10 +6,10 @@
   <div class="row page-content">
     <div class="col-md-2 hidden-xs">
       <ul class="graphs-tree"> 
-        <li data-ng-click="selected = 0">
+        <li data-ng-click="selected.index = 0" data-ng-class="{active: selected.index == 0}">
           {{ protocol.processes.title }} 
         </li>
-        <li data-ng-repeat="fsm in protocol.finalstatemachines track by $index" data-ng-click="selected = $index + 1">
+        <li data-ng-repeat="fsm in protocol.finalstatemachines track by $index" data-ng-click="selected.index = $index + 1" data-ng-class="{active: selected.index == $index + 1}">
           {{ fsm.title }}
         </li>
        </ul>
@@ -17,8 +17,8 @@
     <div class="col-md-10">
       
       <protocol>
-        <graph data-ng-show="selected == 0" data-graph-data="protocol.processes"></graph>
-        <graph data-ng-repeat="fsm in protocol.finalstatemachines track by $index" data-ng-show="selected == $index + 1" data-graph-data="fsm"></graph>
+        <graph data-ng-show="selected.index == 0" data-graph-data="protocol"></graph>
+        <graph data-ng-repeat="fsm in protocol.finalstatemachines track by $index" data-ng-show="selected.index == $index + 1" data-graph-data="fsm"></graph>
       </protocol>
       
     </div>

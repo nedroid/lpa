@@ -8,7 +8,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       index: 0
     };
 
-    $scope.init = function() {
+    $scope.create = function() {
       $scope.graphs = Graph.instances;
       Graph.empty({
         type: Graph.TYPE.PROCESSES,
@@ -16,10 +16,14 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       });
     };
 
-    $scope.findOne = function() {
+    $scope.view = function() {
       $scope.protocol = Protocols.get({
         protocolId: $stateParams.protocolId
       });
+    };
+
+    $scope.list = function() {
+      $scope.protocols = Protocols.query();
     };
 
   }

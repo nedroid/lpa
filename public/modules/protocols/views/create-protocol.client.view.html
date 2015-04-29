@@ -1,4 +1,4 @@
-<section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="init()">
+<section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="create()">
   
   <lpa-title data-code="PROTOCOLS_NEW"></lpa-title>
   
@@ -13,7 +13,7 @@
     <div class="col-md-10">
       
       <protocol>
-        <graph data-ng-repeat="graph in graphs track by $index" data-ng-show="selected.index == $index" data-graph-data="graph"></graph>
+        <graph data-ng-repeat="graph in graphs track by $index" data-ng-show="selected.index == $index" data-graph-data="graph" data-edit="true"></graph>
       </protocol>
       
     </div>

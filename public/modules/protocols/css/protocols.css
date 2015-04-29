@@ -18,10 +18,10 @@ ul.graphs-tree li {
   border-radius: 4px;
   cursor: pointer;
 }
-ul.graphs-tree li:hover {
+ul.graphs-tree li.active {
   background-color: #ddd;
 }
-ul.graphs-tree li.active {
+ul.graphs-tree li:hover {
   background-color: #ccc;
 }
 ul.graphs-tree ul {

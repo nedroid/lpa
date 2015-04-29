@@ -86,36 +86,12 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
     }
     
     Graph.prototype.data = function() {
-      var 
-      this_ = this,
-      statemachine = {
-        title: 'StateMachine as',
-        nodes: [],
-        links: []
+      return {
+        title: this.values.title,
+        type: this.values.type,
+        nodes: this.values.data.nodes,
+        links: this.values.data.links
       };
-        
-      this_.values.data.nodes.forEach(function(node) {
-        statemachine.nodes.push({
-          label: node.label,
-            //TODO remove default value
-          type: node.type || 'PROCESS',
-          x: node.x,
-          y: node.y,
-          size: node.size,
-          id: node.index
-        });
-      });
-
-      this_.values.data.links.forEach(function(link) {
-        statemachine.links.push({
-            //TODO remove default value
-          label: link.label || 'TEST',
-          source: link.source.index,
-          target: link.target.index,          
-        });
-      });
-
-      return statemachine;
     };
 
     Graph.prototype.build = function() {
@@ -145,7 +121,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       // LINKS
       this_.values.svg.links = this_.values.svg.links
         .data(this_.values.force.links(), function(d) { 
-          return d.source._id + '-' + d.target._id; 
+          return d.source.node_id + '-' + d.target.node_id; 
         });
 
       this_.values.svg.links.enter().append('svg:g').attr('class', 'link').each(function(d) {
@@ -153,7 +129,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         d3.select(this)
           .append('svg:path')
           .attr('class', 'link')
-          .attr('id', function(d) { return 'link-' + d.source._id + '-' + d.target._id; })
+          .attr('id', function(d) { return 'link-' + d.source.node_id + '-' + d.target.node_id; })
           .attr('marker-end', 'url(#end)');
 
         d3.select(this)
@@ -165,7 +141,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           .attr('text-anchor', 'middle')
           .style('fill','#000')
           .append('textPath')
-          .attr('xlink:href', function(d) { return '#link-' + d.source._id + '-' + d.target._id; })
+          .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id; })
           .text(function(d) { return d.label || 'no label'; });       
    
       });
@@ -174,7 +150,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
 
       //NODES
       this_.values.svg.nodes = this_.values.svg.nodes
-        .data(this_.values.force.nodes(), function(d) { return d._id; });
+        .data(this_.values.force.nodes(), function(d) { return d.node_id; });
 
       this_.values.svg.nodes.enter()
         .append('svg:g')
@@ -183,7 +159,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
 
           d3.select(this)
             .append('svg:circle')
-            .attr('class', function(d) { return 'node ' + d._id; })
+            .attr('class', function(d) { return 'node ' + d.node_id; })
             .attr('r', function(d) { return radius(d.size); });
 
           d3.select(this)
@@ -209,7 +185,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
     Graph.prototype.nodeLinks = function(nodeId) {
       var links = [];
       this.values.data.links.forEach(function(link) {
-        if (link.source._id === nodeId || link.target._id === nodeId) {
+        if (link.source.node_id === nodeId || link.target.node_id === nodeId) {
           links.push(link);
         }
       });
@@ -247,7 +223,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       var
       this_ = this,
       node = {
-        _id: uid(),
+        node_id: uid(),
         label: label(this_.values.data.nodes.length + 1),
         size: NODES.SIZE[type],
         type: NODES.TYPE[type]
@@ -282,11 +258,11 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         return;
       }
       var 
-      nodeId = nodeData(this_.values.svg.selected.node)._id,
+      nodeId = nodeData(this_.values.svg.selected.node).node_id,
       nodeIndex,
       nodeLinksIndexes = [];
       this_.values.data.nodes.forEach(function(node, index) {
-        if(node._id === nodeId) {
+        if(node.node_id === nodeId) {
           nodeIndex = index;
         }
       });
@@ -393,6 +369,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       options.nodes.forEach(function(node) {
         this_.values.data.nodes.push({
           _id: node._id,
+          node_id: node._id,
           label: node.label,
           size: node.size,
           type: node.type,
@@ -406,10 +383,10 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         sourceNode = null;
         targetNode = null;
         this_.values.data.nodes.forEach(function(node) {
-          if(node._id === link.source) {
+          if(node.node_id === link.source) {
             sourceNode = node;
           }
-          if(node._id === link.target) {
+          if(node.node_id === link.target) {
             targetNode = node;  
           }
         });       
@@ -433,9 +410,15 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       graphsCount--;
     }
 
+    function destroy() {
+      graphs = [];
+      graphsCount = 0;
+    }
+
     return {
       instance: Graph,
       instances: graphs,
+      destroy: destroy,
       empty: createNewGraph,
       NODES: NODES,
       TYPE: GRAPH.TYPE

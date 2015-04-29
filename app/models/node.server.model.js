@@ -19,6 +19,10 @@ var NodeSchema = new Schema({
     ],
     required: 'Type cannot be blank'
   },
+  node_id: {
+    type: String,
+    trim: true
+  },
   x: {
     type: Number,
     default: 0,

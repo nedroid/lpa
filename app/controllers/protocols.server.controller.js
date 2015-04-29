@@ -12,12 +12,79 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res) {
 
   var protocol_ = req.body,
-    fsmsSaveFunctions = [];
+    graphsSaveFunctions = [];
   
-  protocol_.fsms = protocol_.fsms || [];
-  protocol_.fsms.forEach(function(fsm) {
+  graphsSaveFunctions.push(function(callback) {
+    async.waterfall([
 
-    fsmsSaveFunctions.push(function(callback) {
+      function(callback_) {
+        var nodes = [];
+        protocol_.processes.nodes = protocol_.processes.nodes || [];
+        protocol_.processes.nodes.forEach(function(node) {
+          node.user = req.user;
+          nodes.push(node);
+        });
+        NodeModel.create(nodes, function(err) {
+          nodes = [];
+          for (var i = 1; i < arguments.length; ++i) {
+            nodes.push(arguments[i]);
+          }
+          callback_(err, nodes);
+        });
+      },
+
+      function(nodes, callback_) {
+        var 
+        links = [],
+        isTarget = false,
+        isSource = false;
+
+        protocol_.processes.links = protocol_.processes.links || [];
+        protocol_.processes.links.forEach(function(link) {
+          isTarget = false;
+          isSource = false;
+          nodes.forEach(function(node) {
+            if (link.source.node_id === node.node_id) {
+              link.source = node;
+              isSource = true;  
+            }
+            if (link.target.node_id === node.node_id) {
+              link.target = node;
+              isTarget = true;
+            } 
+          });
+          if(isSource && isTarget) {
+            link.user = req.user;
+            links.push(link);
+          } else {
+            callback_(new Error('Link do not have source or target node from node list'));
+          } 
+        });
+        LinkModel.create(links, function(err) {
+          links = [];
+          for (var i = 1; i < arguments.length; ++i) {
+            links.push(arguments[i]);
+          }
+          callback_(err, nodes, links);
+        });
+      },
+
+      function(nodes, links, callback_) {
+        new GraphModel({
+          title: protocol_.processes.title || 'hardcoded fsm title',
+          links: links,
+          nodes: nodes,
+          user: req.user
+        }).save(callback_);
+      }
+
+    ], callback);
+  });
+
+  protocol_.finalstatemachines = protocol_.finalstatemachines || [];
+  protocol_.finalstatemachines.forEach(function(fsm) {
+
+    graphsSaveFunctions.push(function(callback) {
     
       async.waterfall([
 
@@ -48,11 +115,11 @@ exports.create = function(req, res) {
             isTarget = false;
             isSource = false;
             nodes.forEach(function(node) {
-              if (link.source === node.name) {
+              if (link.source.node_id === node.node_id) {
                 link.source = node;
                 isSource = true;  
               }
-              if (link.target === node.name) {
+              if (link.target.node_id === node.node_id) {
                 link.target = node;
                 isTarget = true;
               } 
@@ -86,19 +153,26 @@ exports.create = function(req, res) {
     });
   });
 
-  async.parallel(fsmsSaveFunctions, function(err, results) {
+  async.parallel(graphsSaveFunctions, function(err, results) {
     if(err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
     } else {
-      var fsms = [];
-      results.forEach(function(result) {
-        fsms.push(result[0]);
+      var
+      finalstatemachines = [],
+      processes = {};
+      results.forEach(function(result, index) {
+        if(index === 0) {
+          processes = result[0];
+        } else {
+          finalstatemachines.push(result[0]);  
+        }
       });
       new ProtocolModel({
-        title: 'Prvi protokol',
-        fsms: fsms,
+        title: protocol_.title || 'Protocol title HC',
+        processes: processes,
+        finalstatemachines: finalstatemachines,
         user: req.user
       }).save(function(err, protocol) {
         if (err) {
@@ -108,9 +182,8 @@ exports.create = function(req, res) {
         } else {
           res.json(protocol);
         }
-    });
+      });
     }
-    
   });
   
 };
@@ -151,7 +224,9 @@ exports.delete = function(req, res) {
 };
 
 exports.list = function(req, res) {
-  ProtocolModel.find().sort('-created').populate('user', 'displayName').exec(function(err, protocols) {
+  ProtocolModel.find().sort('-created')
+  .deepPopulate('processes.nodes processes.links')
+  .exec(function(err, protocols) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -171,7 +246,7 @@ exports.protocolByID = function(req, res, next, id) {
   }
 
   ProtocolModel.findById(id)
-    .deepPopulate('fsms.nodes fsms.links')//fsms.links.source fsms.links.target
+    .deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links')
     .exec(function(err, protocol) {
       if (err) return next(err);
       if (!protocol) {
