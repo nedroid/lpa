@@ -29,6 +29,12 @@ var ProtocolSchema = new Schema({
   }
 });
 
-ProtocolSchema.plugin(deepPopulate);
+ProtocolSchema.plugin(deepPopulate, {
+  populate: {
+    'user': {
+      select: 'displayName'
+    }
+  }
+});
 
 mongoose.model('Protocol', ProtocolSchema);

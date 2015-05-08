@@ -225,7 +225,7 @@ exports.delete = function(req, res) {
 
 exports.list = function(req, res) {
   ProtocolModel.find().sort('-created')
-  .deepPopulate('processes.nodes processes.links')
+  .deepPopulate('processes.nodes processes.links user')
   .exec(function(err, protocols) {
     if (err) {
       return res.status(400).send({

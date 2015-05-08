@@ -5,6 +5,9 @@
 	"SIGNIN": "Prijava",
 	"SIGNUP": "Registracija",
 
+  "BY": "od",
+  "TAKE_A_LOOK": "Poglej",
+
 	"PROTOCOLS": "Protokoli",
 	"PROTOCOLS_NEW": "Nov Protokol",
 	"PROTOCOLS_LIST": "Seznam Protokolov" 
