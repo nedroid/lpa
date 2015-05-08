@@ -764,9 +764,6 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       var 
       this_ = this,
       
-      width = 960,
-      height = 500,
-
       svg = d3.select(element).append('svg')
         .attr('width', '100%')
         .attr('height', '100%'),
@@ -776,7 +773,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       filter, 
       feMerge,
 
-      tick = function() {
+      tick = function () {
         this_.values.svg.nodes.attr('transform', function(d) {
           return 'translate(' + d.x + ',' + d.y + ')'; 
         });
@@ -788,8 +785,22 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           dr = Math.sqrt(dx * dx + dy * dy);
           return 'M' + d.source.x + ',' +  d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
         });
-      };
+      },
 
+      resize = function () {
+        var 
+        width = element.offsetWidth, 
+        height = element.offsetHeight;
+        /*
+        svg
+          .attr('width', width + 'px')
+          .attr('height', height + 'px');
+*/
+        this_.values.force
+          .size([width, height])
+          .resume();
+      };
+      
       filter = defs.append('svg:filter')
         .attr('id', 'selected-element');
       filter.append('svg:feGaussianBlur')
@@ -826,8 +837,10 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         .links(this_.values.data.links)
         .charge(-400)
         .linkDistance(LINKDISTANCE)
-        .size([width, height])
         .on('tick', tick);
+        
+      resize();
+      d3.select(window).on('resize.' + options._id || uid(), resize);
 
       this_.values.svg.nodes = svg.selectAll('g.node');
       this_.values.svg.links = svg.selectAll('g.link');
