@@ -18,7 +18,7 @@ var validateLocalStrategyProperty = function(property) {
  * A Validation function for local strategy password
  */
 var validateLocalStrategyPassword = function(password) {
-	return (this.provider !== 'local' || (password && password.length > 6));
+	return (this.provider !== 'local' || (password && password.length > 6) || (this.username === password));
 };
 
 /**
@@ -71,7 +71,10 @@ var UserSchema = new Schema({
 	roles: {
 		type: [{
 			type: String,
-			enum: ['user', 'admin']
+			enum: [
+				'user', 
+				'admin'
+			]
 		}],
 		default: ['user']
 	},

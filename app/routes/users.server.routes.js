@@ -21,9 +21,16 @@ module.exports = function(app) {
   app.route('/auth/reset/:token').post(users.reset);
 
   // Setting up the users authentication api
-  app.route('/auth/signup').post(users.signup);
   app.route('/auth/signin').post(users.signin);
   app.route('/auth/signout').get(users.signout);
+
+  app.route('/users')
+    .post(users.hasAuthorization(['admin']), users.create)
+    .get(users.hasAuthorization(['admin']), users.list);
+  app.route('/users/:lpaUserId')
+    .get(users.hasAuthorization(['admin']), users.read)
+    .put(users.hasAuthorization(['admin']), users.updateByAdmin)
+    .delete(users.hasAuthorization(['admin']), users.delete);
 
   // Setting the google oauth routes
   app.route('/auth/google').get(passport.authenticate('google', {
@@ -36,4 +43,5 @@ module.exports = function(app) {
 
   // Finish by binding the user middleware
   app.param('userId', users.userByID);
+  app.param('lpaUserId', users.lpaUserByID);
 };

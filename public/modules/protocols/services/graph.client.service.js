@@ -116,6 +116,13 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         this_.values.svg.selected.link = d3.select(this)
           .select('line')
           .style('filter', 'url(#selected-element)');
+      },
+
+      labelClick = function (link) {
+        var label = 'todo';
+        d3.select(this)
+          .text(label);
+        link.label = label;
       };
 
       // LINKS
@@ -135,15 +142,14 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         d3.select(this)
           .append('svg:text')
           .attr('class', 'linklabel')
-          .style('font-size', '13px')
-          .attr('x', LINKDISTANCE / 2)
-          .attr('y', '-20')
+          .attr('dx', LINKDISTANCE / 2)
+          .attr('dy', '-10')
           .attr('text-anchor', 'middle')
-          .style('fill','#000')
-          .append('textPath')
-          .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
-          .text(function(d) { return d.label || 'no label'; });       
-   
+          .append('svg:textPath')
+            .on('click', labelClick)
+            .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
+            .text(function(d) { return d.label || 'no label'; });       
+
       });
 
       this_.values.svg.links.exit()

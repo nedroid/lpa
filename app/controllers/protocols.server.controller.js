@@ -192,7 +192,6 @@ exports.read = function(req, res) {
   res.json(req.lpaProtocol);
 };
 
-
 exports.update = function(req, res) {
   var protocol = req.protocol;
 

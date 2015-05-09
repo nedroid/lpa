@@ -13,8 +13,9 @@ g.link path {
   stroke-width: 3px;
 }
 g.link text {
-  font: 10px sans-serif;
-  pointer-events: none;
+  font-size: 15px;
+  fill: #333;
+  cursor: pointer;
 }
 g.node circle.start {
   stroke: #F00;

@@ -2,15 +2,21 @@
 
 <div class="graph-toolbar" data-ng-show="edit">
   <button type="button" class="btn btn-primary" data-ng-click="graph.addNode('PROCESS')">
-    ADD_NODE
+    <span class="small-stack">
+      <i class="fa fa-circle-o"></i>
+      <i class="fa fa-plus"></i>
+    </span>
   </button>
   <button type="button" class="btn btn-primary" data-ng-click="graph.removeNode()">
-    REMOVE_NODE
+    <span class="small-stack">
+      <i class="fa fa-circle-o"></i>
+      <i class="fa fa-minus"></i>
+    </span>
   </button>
   <button type="button" class="btn btn-primary" data-ng-click="graph.addLink()">
-    ADD_LINK
+      <i class="fa fa-share-alt"></i>
   </button>
   <button type="button" class="btn btn-primary" data-ng-click="save()">
-    SAVE
+    <i class="fa fa-floppy-o"></i>
   </button>
 </div>

@@ -39,3 +39,11 @@ ul.graphs-tree li:hover {
 ul.graphs-tree ul {
   list-style-type: none;
 }
+.small-stack {
+  position: relative;
+}
+.small-stack i:last-child {
+  font-size: 12px;
+  position: absolute;
+  bottom: -5px;
+}
