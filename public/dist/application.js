@@ -588,6 +588,13 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         this_.values.svg.selected.link = d3.select(this)
           .select('line')
           .style('filter', 'url(#selected-element)');
+      },
+
+      labelClick = function (link) {
+        var label = 'todo';
+        d3.select(this)
+          .text(label);
+        link.label = label;
       };
 
       // LINKS
@@ -607,15 +614,14 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         d3.select(this)
           .append('svg:text')
           .attr('class', 'linklabel')
-          .style('font-size', '13px')
-          .attr('x', LINKDISTANCE / 2)
-          .attr('y', '-20')
+          .attr('dx', LINKDISTANCE / 2)
+          .attr('dy', '-10')
           .attr('text-anchor', 'middle')
-          .style('fill','#000')
-          .append('textPath')
-          .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
-          .text(function(d) { return d.label || 'no label'; });       
-   
+          .append('svg:textPath')
+            .on('click', labelClick)
+            .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
+            .text(function(d) { return d.label || 'no label'; });       
+
       });
 
       this_.values.svg.links.exit()
@@ -1009,14 +1015,6 @@ angular.module('users').config(['$stateProvider',
 			url: '/settings/password',
 			templateUrl: 'modules/users/views/settings/change-password.client.view.html'
 		}).
-		state('accounts', {
-			url: '/settings/accounts',
-			templateUrl: 'modules/users/views/settings/social-accounts.client.view.html'
-		}).
-		state('signup', {
-			url: '/signup',
-			templateUrl: 'modules/users/views/authentication/signup.client.view.html'
-		}).
 		state('signin', {
 			url: '/signin',
 			templateUrl: 'modules/users/views/authentication/signin.client.view.html'
@@ -1036,6 +1034,18 @@ angular.module('users').config(['$stateProvider',
 		state('reset', {
 			url: '/password/reset/:token',
 			templateUrl: 'modules/users/views/password/reset-password.client.view.html'
+		}).
+		state('users', {
+			url: '/users',
+			templateUrl: 'modules/users/views/users/list-users.client.view.html'
+		}).
+		state('createUser', {
+			url: '/users/create',
+			templateUrl: 'modules/users/views/users/create-user.client.view.html'
+		}).
+		state('editUser', {
+			url: '/users/:userId',
+			templateUrl: 'modules/users/views/users/edit-user.client.view.html'
 		});
 	}
 ]);
@@ -1047,18 +1057,6 @@ angular.module('users').controller('AuthenticationController', ['$scope', '$http
 
 		// If user is signed in then redirect back home
 		if ($scope.authentication.user) $location.path('/');
-
-		$scope.signup = function() {
-			$http.post('/auth/signup', $scope.credentials).success(function(response) {
-				// If successful we assign the response to the global user model
-				$scope.authentication.user = response;
-
-				// And redirect to the index page
-				$location.path('/');
-			}).error(function(response) {
-				$scope.error = response.message;
-			});
-		};
 
 		$scope.signin = function() {
 			$http.post('/auth/signin', $scope.credentials).success(function(response) {
@@ -1190,10 +1188,139 @@ angular.module('users').controller('SettingsController', ['$scope', '$http', '$l
 ]);
 'use strict';
 
+angular.module('users').controller('UsersController', ['$scope', '$http', '$stateParams', '$location', 'LpaUsers', 'Authentication', 'Messenger',
+  function($scope, $http, $stateParams, $location, LpaUsers, Authentication, Messenger) {
+    $scope.authentication = Authentication;
+    
+    $scope.userRoles = [
+      {
+        name: 'User',
+        key: 'user',
+        value: false
+      },
+      {
+        name: 'Administrator',
+        key: 'admin',
+        value: false
+      }
+    ];
+
+    $scope.create = function() {
+      var lpaUser = new LpaUsers({
+        firstName: this.firstName,
+        lastName: this.lastName,
+        email: this.email,
+        username: this.username
+      });
+
+      lpaUser.$save(function(response) {
+        $location.path('users/' + response._id);
+
+        $scope.firstName = '';
+        $scope.lastName = '';
+        $scope.username = '';
+        $scope.email = '';
+      
+      }, function(errorResponse) {
+        $scope.error = errorResponse.data.message;
+      });
+    };
+
+    $scope.update = function() {
+      var lpaUser = $scope.lpaUser;
+
+      lpaUser.roles = [];
+      $scope.userRoles.forEach(function(role) {
+        if(role.value) {
+          lpaUser.roles.push(role.key);
+        }
+      }); 
+
+      lpaUser.$update(function(lpaUser) {
+        $scope.success = true;
+      }, function(errorResponse) {
+        $scope.error = errorResponse.data.message;
+      });
+    };
+
+    $scope.remove = function(lpaUser) {
+      var errorHandler = function (error) {
+        Messenger.post(error.data.message, 'error');
+      };
+      if (lpaUser) {
+        lpaUser.$remove(function() {
+          for (var i in $scope.lpaUsers) {
+            if ($scope.lpaUsers[i] === lpaUser) {
+              $scope.lpaUsers.splice(i, 1);
+            }
+          } 
+        }, errorHandler);
+      } else {
+        $scope.lpaUser.$remove(function() {
+          $location.path('users');
+        }, errorHandler);
+      }
+    };
+
+    $scope.findOne = function() {
+      $scope.lpaUser = LpaUsers.get({
+        userId: $stateParams.userId
+      }, function(lpaUser) {
+        lpaUser.roles = lpaUser.roles || [];
+        lpaUser.roles.forEach(function(role) {
+          $scope.userRoles.forEach(function(role2) {
+            if(role === role2.key) {
+              role2.value = true;
+            }
+          }); 
+        });
+      });
+    };
+
+    $scope.list = function() {
+      $scope.lpaUsers = LpaUsers.query();
+    };
+
+    $scope.edit = function(lpaUser) {
+      $location.path('users/' + lpaUser._id);
+    };
+
+  }
+]);
+'use strict';
+
 // Authentication service for user variables
 angular.module('users').factory('Authentication', ['$window', function($window) {
 	var auth = {
-		user: $window.user
+		user: $window.user,
+    hasAuthorization: function(roles) {
+      var 
+      this_ = this,
+      userRoles,
+      hasAuthorization = false;
+      
+      roles = roles || [];
+      userRoles = this_.user && this_.user.roles || [];
+      if (!angular.isArray(roles)) {
+        roles = [roles];    
+      }
+
+      roles.forEach(function(role) {
+        var hasRole = false;
+        userRoles.forEach(function(role2) {
+          if(role === role2) {
+             hasRole = true;
+          }    
+        });  
+        if(!hasRole) {
+          return (hasAuthorization = false);
+        } else {
+          hasAuthorization = true;
+        }
+      });
+      
+      return hasAuthorization;
+    }
 	};
 	
 	return auth;
@@ -1202,12 +1329,28 @@ angular.module('users').factory('Authentication', ['$window', function($window) 
 'use strict';
 
 // Users service used for communicating with the users REST endpoint
-angular.module('users').factory('Users', ['$resource',
-	function($resource) {
-		return $resource('users', {}, {
-			update: {
-				method: 'PUT'
-			}
-		});
-	}
-]);
+angular.module('users').
+  
+  factory('Users', ['$resource',
+    function($resource) {
+		  return $resource('users', {
+        userId: '@_id'
+      }, {
+        update: {
+          method: 'PUT'
+        }
+      });
+    }
+  ]).
+
+  factory('LpaUsers', ['$resource',
+    function($resource) {
+      return $resource('users/:userId', {
+        userId: '@_id'
+      }, {
+        update: {
+          method: 'PUT'
+        }
+      });
+    }
+  ]);
