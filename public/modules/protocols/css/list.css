@@ -35,6 +35,7 @@
 }
 .protocols-list > li > div > div span {
   margin-left: 5px;
+  font-size: 12px;
 }
 .protocols-list .graph-content svg { 
   border: none;

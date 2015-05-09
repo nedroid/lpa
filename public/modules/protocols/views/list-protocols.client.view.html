@@ -8,7 +8,11 @@
         <graph data-graph-data="protocol.processes"></graph>
         <div>
           <h3>{{protocol.title}}</h3>
-          <span><i translate>BY</i> <i>{{protocol.user.displayName}}</i></span>
+          <span>
+            <i data-ng-bind="protocol.created | date:'mediumDate'"></i>
+            <i translate> BY </i>
+            <i>{{protocol.user.displayName}}</i>
+          </span>
           <a data-ng-href="#!/protocols/{{protocol._id}}" class="btn btn-sm btn-primary pull-right" translate>TAKE_A_LOOK</a>
         </div>
       </div>
@@ -16,7 +20,7 @@
   </ul>
   
   <div class="alert alert-warning text-center" data-ng-if="protocols.$resolved && !protocols.length">
-    No protocols yet, why don't you <a href="/#!/protocols/create">create one</a>?
+    No protocols yet!
   </div>
 
 </section>

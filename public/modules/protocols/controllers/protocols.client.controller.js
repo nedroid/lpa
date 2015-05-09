@@ -9,6 +9,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
     };
 
     $scope.create = function() {
+      Graph.destroy();
       $scope.graphs = Graph.instances;
       Graph.empty({
         type: Graph.TYPE.PROCESSES,

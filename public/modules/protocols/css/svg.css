@@ -16,3 +16,6 @@ g.link text {
   font: 10px sans-serif;
   pointer-events: none;
 }
+g.node circle.start {
+  stroke: #F00;
+}

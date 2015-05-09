@@ -9,7 +9,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
 
     radius = d3.scale.sqrt().range([0, 6]),
     
-    LINKDISTANCE = 150,
+    LINKDISTANCE = 250,
     
     GRAPH = {
       TYPE: {
@@ -117,11 +117,11 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           .select('line')
           .style('filter', 'url(#selected-element)');
       };
-      
+
       // LINKS
       this_.values.svg.links = this_.values.svg.links
         .data(this_.values.force.links(), function(d) { 
-          return d.source.node_id + '-' + d.target.node_id; 
+          return d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); 
         });
 
       this_.values.svg.links.enter().append('svg:g').attr('class', 'link').each(function(d) {
@@ -129,7 +129,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         d3.select(this)
           .append('svg:path')
           .attr('class', 'link')
-          .attr('id', function(d) { return 'link-' + d.source.node_id + '-' + d.target.node_id; })
+          .attr('id', function(d) { return 'link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
           .attr('marker-end', 'url(#end)');
 
         d3.select(this)
@@ -141,12 +141,13 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           .attr('text-anchor', 'middle')
           .style('fill','#000')
           .append('textPath')
-          .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id; })
+          .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
           .text(function(d) { return d.label || 'no label'; });       
    
       });
 
-      this_.values.svg.links.exit().remove();
+      this_.values.svg.links.exit()
+        .remove();
 
       //NODES
       this_.values.svg.nodes = this_.values.svg.nodes
@@ -194,23 +195,39 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
     
     Graph.prototype.addLink = function () {
 
-      var this_ = this;
+      var
+      this_ = this,
+
+      addLink = function(source, target) {
+        var linkNum = 1;
+
+        this_.values.data.links.forEach(function(link) {
+          if(link.source === source && link.target === target) {
+            linkNum += 1;
+          }
+        });
+        if(source === target) {
+          linkNum = linkNum * -1;
+        }
+        this_.values.data.links.push({
+          source: source, 
+          target: target,
+          linkNum: linkNum
+        });
+        this_.build();
+      };
       
-      window.temp = window.temp || {};
+      this_.temp = this_.temp || {};
 
       if(!this_.values.svg.selected.node) {
         Messenger.post('Select source node and click add link.', 'info');
         return;
-      } else if(window.temp.sourceNode) {
-        this_.values.data.links.push({
-          source: nodeData(window.temp.sourceNode), 
-          target: nodeData(this_.values.svg.selected.node)
-        });
-        window.temp.sourceNode = null;
-        this_.build();
+      } else if(this_.temp.sourceNode) {
+        addLink(nodeData(this_.temp.sourceNode), nodeData(this_.values.svg.selected.node));
+        this_.temp.sourceNode = null;
         Messenger.post('Link added.', 'success');
       } else {
-        window.temp.sourceNode = this_.values.svg.selected.node;
+        this_.temp.sourceNode = this_.values.svg.selected.node;
         Messenger.post('Select target node and click add link.', 'info');
       }
     };
@@ -309,24 +326,47 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
 
         this_.values.svg.links.selectAll('path').attr('d', function(d) {
           var
-          dx = d.target.x - d.source.x,
-          dy = d.target.y - d.source.y,
-          dr = Math.sqrt(dx * dx + dy * dy);
-          return 'M' + d.source.x + ',' +  d.source.y + 'A' + dr + ',' + dr + ' 0 0,1 ' + d.target.x + ',' + d.target.y;
+          sx = d.source.x,
+          sy = d.source.y,
+          tx = d.target.x,
+          ty = d.target.y,
+          dx = tx - sx,
+          dy = ty - sy,
+          dr = Math.sqrt(dx * dx + dy * dy),
+          drx = dr,
+          dry = dr,
+          xRotation = 0,
+          largeArc = 0,
+          sweep = 1;
+
+          if(d.linkNum < 0) {
+            xRotation = 0;
+            largeArc = 1;
+            drx = 30 + (d.linkNum * -10);
+            dry = 30 + (d.linkNum * -10);
+            tx = tx + 1;
+            ty = ty + 1;
+          }
+          
+          drx = drx / (d.linkNum || 1);
+          dry = dry / (d.linkNum || 1);
+            
+          var 
+          scx = sx,
+          scy = sy + 100,
+          tcx = tx,
+          tcy = ty + 100;
+          return 'M' + 
+            sx + ',' + sy + 
+            'A' + drx + ',' + dry + ' ' + xRotation + ',' + largeArc + ',' + sweep + ' ' +
+            //'C' + scx + ',' + scy + ' ' + tcx + ',' + tcy + ' ' +
+            tx + ',' + ty;
         });
       },
 
       resize = function () {
-        var 
-        width = element.offsetWidth, 
-        height = element.offsetHeight;
-        /*
-        svg
-          .attr('width', width + 'px')
-          .attr('height', height + 'px');
-*/
         this_.values.force
-          .size([width, height])
+          .size([element.offsetWidth, element.offsetHeight])
           .resume();
       };
       
@@ -424,7 +464,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
     }
 
     function destroy() {
-      graphs = [];
+      graphs.splice(0, graphs.length);
       graphsCount = 0;
     }
 
