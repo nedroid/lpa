@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Messenger', 'Protocols', 'Graph',
-  function($scope, $stateParams, $location, Authentication, Messenger, Protocols, Graph) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Messenger', 'Protocols', 'Graph', '$analytics',
+  function($scope, $stateParams, $location, Authentication, Messenger, Protocols, Graph, $analytics) {
     $scope.authentication = Authentication;
 
     $scope.selected = {
@@ -15,16 +15,19 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
         type: Graph.TYPE.PROCESSES,
         title: 'Protokol title'
       });
+      $analytics.eventTrack('lpa.protocols.create', { category: 'protocols', label: 'Create' });
     };
 
     $scope.view = function() {
       $scope.protocol = Protocols.get({
         protocolId: $stateParams.protocolId
       });
+      $analytics.eventTrack('lpa.protocols.view', { category: 'protocols', label: 'View' });
     };
 
     $scope.list = function() {
       $scope.protocols = Protocols.query();
+      $analytics.eventTrack('lpa.protocols.list', { category: 'protocols', label: 'List' });
     };
 
   }
