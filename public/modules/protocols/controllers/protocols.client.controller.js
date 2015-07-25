@@ -1,12 +1,25 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Messenger', 'Protocols', 'Graph', '$analytics',
-  function($scope, $stateParams, $location, Authentication, Messenger, Protocols, Graph, $analytics) {
-    $scope.authentication = Authentication;
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', 'Protocols', 'Graph', 'Actions', '$analytics',
+  function($scope, $stateParams, Protocols, Graph, Actions, $analytics) {
 
     $scope.selected = {
       index: 0
     };
+
+    $scope.actions = Actions;
+    
+    $scope.$watch(function() {
+      return Actions.nodeSettings;
+    }, function() {
+      $scope.nodeSettings = Actions.nodeSettings;
+    }, true);
+
+    $scope.$watch(function() {
+      return Actions.linkSettings;
+    }, function() {
+      $scope.linkSettings = Actions.linkSettings;
+    }, true);
 
     $scope.create = function() {
       Graph.destroy();

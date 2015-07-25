@@ -59,3 +59,93 @@ h1.app-name-logo:after {
 	color: #FF0000;
 	color: rgba(255,0,0,0.5);
 }
+.panel-draggable {
+  position: fixed;
+  z-index: 99999;
+}
+.panel-draggable .panel-heading {
+  cursor: move;
+}
+.panel-draggable.transparent {
+  opacity: 0.3;
+}
+.panel-draggable.transparent:hover {
+  opacity: 1;
+}
+/* SMALL PANEL DRAGGALBE */
+.panel-sm,
+.panel-sm input, 
+.panel-sm span.form-control,
+.panel-sm .ui-select-choices a {
+  font-size: 10px;
+}
+.panel-sm span.form-control,
+.panel-sm input {
+  height: 20px;
+  padding: 0 5px;
+}
+.panel-sm .form-horizontal .control-label {
+  padding-top: 3px;
+}  
+.panel-sm .form-group {
+  margin-bottom: 5px;
+}
+.panel-sm .btn-checkbox {
+  height: 0;
+}
+.panel-sm .panel-body {
+  padding: 8px;
+}
+.panel-sm .panel-heading {
+  padding: 8px 12px;
+}
+.panel-sm h3 {
+  font-size: 12px;
+}
+/* MEDIUM PANEL DRAGGALBE */
+.panel-md,
+.panel-md input,
+.panel-md span.form-control,
+.panel-md .ui-select-choices a {
+  font-size: 12px;
+}
+.panel-md span.form-control,
+.panel-md input {
+  height: 26px;
+  padding: 0 5px;
+}
+.panel-md .form-horizontal .control-label {
+  padding-top: 5px;
+}  
+.panel-md .form-group {
+  margin-bottom: 5px;
+}
+.panel-md .btn-checkbox {
+  height: 0;
+}
+.panel-md .panel-body {
+  padding: 8px;
+}
+.panel-md .panel-heading {
+  padding: 8px 12px;
+}
+.panel-md h3 {
+  font-size: 14px;
+}
+
+/* BUTTON CHECKBOX */
+.btn-checkbox {
+  background-color: transparent;
+  border: none;
+  font-size: 16px;
+}
+.btn-checkbox:focus {
+  border: 1px solid transparent;
+  outline: none;
+}
+.btn-checkbox i:before {
+  content: "\f096";
+}
+.btn-checkbox.active i:before {
+  content: "\f14a";
+}

@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').service('Graph', ['$filter', 'Messenger',
-  function($filter, Messenger) {
+angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Actions',
+  function($filter, d3, Messenger, Actions) {
 
     var 
     graphs = [],
@@ -11,10 +11,29 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
     
     LINKDISTANCE = 250,
     
+    SETTINGS_MARGIN = 10,
+
+    PROC_LABEL_TRANSLATOR = 'PABC'.split(''),
+    FSM_LABEL_TRANSLATOR = 'xyz'.split(''),
+    LABEL_TRANSLATOR = 'abcdefghijklmn'.split(''),
+
     GRAPH = {
       TYPE: {
         PROCESSES: 'PROCESSES',
         FINAL_STATE_MACHNE: 'FINAL_STATE_MACHNE'
+      },
+      NODES: {
+        PROCESSES: 'PROCESS',
+        FINAL_STATE_MACHNE: 'ACCEPT_STATE'
+      }
+    },
+
+    LINKS = {
+      TYPE: {
+        UNKNOWN: '_',
+        RECEIVE: '+',
+        SEND: '-',
+        LOCAL: '#'
       }
     },
 
@@ -25,14 +44,26 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         ACCEPT_STATE: 'ACCEPT_STATE'
       },
       SIZE: {
-        PROCESS: 12,
+        PROCESS: 14,
         START_STATE: 12,
         ACCEPT_STATE: 12
       },
       COLOR: {
-        PROCESS: '#FF0000',
-        START_STATE: '#00FF00',
-        ACCEPT_STATE: '#0000FF'
+        PROCESS: '#DDD',
+        START_STATE: '#DDD',
+        ACCEPT_STATE: '#DDD'
+      },
+      STROKE_WIDTH: {
+        PROCESS: 1,
+        START_STATE: 2,
+        ACCEPT_STATE: 1,
+        SELECTED: 3
+      },
+      STROKE: {
+        PROCESS: '#000',
+        START_STATE: '#F00',
+        ACCEPT_STATE: '#000',
+        SELECTED: '#337ab7',
       }
     };
 
@@ -44,8 +75,23 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       return Math.floor(Math.random() * (max - min + 1) + min);
     }
     
-    function label(i) {
-      return i;
+    function label(i, type) {
+      var label_ = '';
+      if(angular.isNumber(i)) {
+        angular.forEach(i.toString().split(''), function(value) {
+          value = parseInt(value);
+          if(type === GRAPH.TYPE.PROCESSES) {
+            label_ += PROC_LABEL_TRANSLATOR[value % PROC_LABEL_TRANSLATOR.length];
+          } else if(type === GRAPH.TYPE.FINAL_STATE_MACHNE) {
+            label_ += FSM_LABEL_TRANSLATOR[value % FSM_LABEL_TRANSLATOR.length];
+          } else {
+            label_ += LABEL_TRANSLATOR[value % LABEL_TRANSLATOR.length];
+          }
+        });
+      } else {
+        label_ = i;
+      }
+      return label_;
     }
   
     function uid() {
@@ -53,7 +99,7 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
       });
-    }     
+    }   
 
     function Graph() {
       this.values = {
@@ -69,11 +115,17 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           selected: {
             node: null,
             link: null
+          },
+          start: {
+            node: null
           }
         },
         data: {
           nodes: [],
-          links: []
+          links: [],
+          start: {
+            node: null
+          }
         }
       };
       if(graphsCount > graphs.length) {
@@ -100,29 +152,51 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       
       nodeClicked = function(node) {
         if (this_.values.svg.selected.node) {
-          this_.values.svg.selected.node.style('filter', '');
+          this_.values.svg.selected.node
+            //.style('filter', '');
+            .style('stroke-width', function(d) { return NODES.STROKE_WIDTH[d.type]; })
+            .style('stroke', function(d) { return NODES.STROKE[d.type]; });
         }
-
+        
         this_.values.svg.selected.node = d3.select(this)
          .select('circle')
-         .style('filter', 'url(#selected-element)');
+         .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.SELECTED; })
+         .style('stroke', function(d) { return NODES.STROKE.SELECTED; });
+         //.style('filter', 'url(#selected-element)');
+      },
+
+      nodeDblClicked = function(node) {
+        Actions.showNodeSettings({
+          style: {
+            //top: node.y + node.size + SETTINGS_MARGIN,
+            //left: node.x + node.size + SETTINGS_MARGIN
+            top: 80,
+            left:100
+          },
+          node: node,
+          graph: this_.data()
+        });
       },
 
       linkClicked = function(link) {
         if (this_.values.svg.selected.link) {
           this_.values.svg.selected.link.style('filter', '');
         }
-        
+
         this_.values.svg.selected.link = d3.select(this)
           .select('line')
           .style('filter', 'url(#selected-element)');
       },
 
       labelClick = function (link) {
-        var label = 'todo';
-        d3.select(this)
-          .text(label);
-        link.label = label;
+        Actions.showLinkSettings({
+          style: {
+            top: this.offsetTop + SETTINGS_MARGIN,
+            left: this.offsetLeft + SETTINGS_MARGIN
+          },
+          link: link,
+          graph: this_.data()
+        });
       };
 
       // LINKS
@@ -146,10 +220,9 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           .attr('dy', '-10')
           .attr('text-anchor', 'middle')
           .append('svg:textPath')
-            .on('click', labelClick)
+            .on('dblclick', labelClick)
             .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
-            .text(function(d) { return d.label || 'no label'; });       
-
+            .text(function(d) { return d.label(); });       
       });
 
       this_.values.svg.links.exit()
@@ -167,7 +240,10 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           d3.select(this)
             .append('svg:circle')
             .attr('class', function(d) { return 'node ' + d.node_id; })
-            .attr('r', function(d) { return radius(d.size); });
+            .attr('r', function(d) { return radius(NODES.SIZE[d.type]); })
+            .style('stroke-width', function(d) { return NODES.STROKE_WIDTH[d.type]; })
+            .style('stroke', function(d) { return NODES.STROKE[d.type]; })
+            .style('fill', function(d) { return NODES.COLOR[d.type]; });
 
           d3.select(this)
             .append('svg:text')
@@ -176,7 +252,8 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
             .text(function(d, i) { return d.label || i; }); 
         
           d3.select(this)
-            .on('click', nodeClicked);
+            .on('click', nodeClicked)
+            .on('dblclick', nodeDblClicked);
 
           d3.select(this)
             .call(this_.values.force.drag);
@@ -204,7 +281,8 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       var
       this_ = this,
 
-      addLink = function(source, target) {
+      addLink = function(source, target, options) {
+        options = options || {};
         var linkNum = 1;
 
         this_.values.data.links.forEach(function(link) {
@@ -218,8 +296,29 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
         this_.values.data.links.push({
           source: source, 
           target: target,
-          linkNum: linkNum
+          linkNum: linkNum,
+          type: options.type || LINKS.TYPE.UNKNOWN,
+          name: options.name || label(linkNum),
+          process: options.process || '_',
+          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE ? undefined : {
+            in: {
+              length: 1
+            },
+            out: {
+              length: 1
+            }
+          },
+          label: function() {
+            var label_ = '';
+            if(this.queue) {
+              label_ = this.queue.in.length + '/' + this.queue.out.length;  
+            } else {
+              label_ = this.type + this.name + '(' + this.process + ')';  
+            }
+            return label_;
+          }
         });
+
         this_.build();
       };
       
@@ -245,31 +344,75 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       } 
       var
       this_ = this,
+
+      nodeLabel = label(this_.values.data.nodes.length + 1, this_.values.type),
+
       node = {
         node_id: uid(),
-        label: label(this_.values.data.nodes.length + 1),
+        label: nodeLabel,
         size: NODES.SIZE[type],
-        type: NODES.TYPE[type]
+        type: NODES.TYPE[type],
+        isStart: NODES.TYPE[type] === NODES.TYPE.START_STATE
       };
 
+      if(this_.values.type === GRAPH.TYPE.PROCESSES) {
+        createNewGraph({
+          type: GRAPH.TYPE.FINAL_STATE_MACHNE,
+          title: nodeLabel
+        });  
+      } else if(this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE) {
+        node.setStartState = function() {
+          if(this_.values.svg.start.node && this_.values.data.start.node) {
+            this_.values.svg.start.node
+              .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.ACCEPT_STATE; })
+              .style('stroke', function(d) { return NODES.STROKE.ACCEPT_STATE; });
+            this_.values.data.start.node.type = NODES.TYPE.ACCEPT_STATE;
+            this_.values.data.start.node.isStart = false;
+          }
+          this_.values.svg.start.node = this_.values.svg.selected.node;
+          this_.values.data.start.node = node;
+          
+          if(!node.isStart) {
+            this_.values.svg.start.node
+              .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.START_STATE; })
+              .style('stroke', function(d) { return NODES.STROKE.START_STATE; });
+            this_.values.data.start.node.type = NODES.TYPE.START_STATE;
+          }
+        };
+      }
+      
+      // TOOD - remove this
       if(this_.values.svg.selected.node) {  
         node.x = nodeData(this_.values.svg.selected.node).x + random(-15, 15);
         node.y = nodeData(this_.values.svg.selected.node).y + random(-15, 15);
 
         this_.values.data.links.push({
           source: nodeData(this_.values.svg.selected.node), 
-          target: node
+          target: node,
+          type: LINKS.TYPE.UNKNOWN,
+          name: label(1),
+          process: '_',
+          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE ? undefined : {
+            in: {
+              length: 1
+            },
+            out: {
+              length: 1
+            }
+          },
+          label: function() {
+            var label_ = '';
+            if(this.queue) {
+              label_ = this.queue.in.length + '/' + this.queue.out.length;  
+            } else {
+              label_ = this.type + this.name + '(' + this.process + ')';  
+            }
+            return label_;
+          }
         });
       }
 
       this_.values.data.nodes.push(node);
-
-      if(this_.values.type === GRAPH.TYPE.PROCESSES) {
-        createNewGraph({
-          type: GRAPH.TYPE.FINAL_STATE_MACHNE,
-          title: label(graphs.length)
-        });  
-      }
       
       this_.build();
     };
@@ -450,9 +593,29 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
           }
         });       
         this_.values.data.links.push({
-          label: link.label,
           source: sourceNode,
-          target: targetNode
+          target: targetNode,
+          linkNum: 1,
+          type:  LINKS.TYPE.UNKNOWN,
+          name:  label(1),
+          process: '_',
+          queue: {
+            in: {
+              length: 1
+            },
+            out: {
+              length: 1
+            }
+          },
+          label: function() {
+            var label_ = '';
+            if(this.queue) {
+              label_ = this.queue.in.length + '/' + this.queue.out.length;  
+            } else {
+              label_ = this.type + this.name + '(' + this.process + ')';  
+            }
+            return label_;
+          }
         });
       });
 
@@ -480,7 +643,8 @@ angular.module('protocols').service('Graph', ['$filter', 'Messenger',
       destroy: destroy,
       empty: createNewGraph,
       NODES: NODES,
-      TYPE: GRAPH.TYPE
+      TYPE: GRAPH.TYPE,
+      NODE_TYPE: GRAPH.NODES
     };
   }
 ]);

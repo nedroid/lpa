@@ -7,6 +7,7 @@ var ApplicationConfiguration = (function() {
 	var applicationModuleVendorDependencies = [
 		'ngResource', 
 		'ngAnimate', 
+		'ngSanitize', 
 		'ui.router', 
 		'ui.bootstrap', 
 		'ui.utils',

@@ -1,7 +1,7 @@
 <div class="graph-content"></div>
 
 <div class="graph-toolbar" data-ng-show="edit">
-  <button type="button" class="btn btn-primary" data-ng-click="graph.addNode('PROCESS')">
+  <button type="button" class="btn btn-primary" data-ng-click="graph.addNode(nodeType)">
     <span class="small-stack">
       <i class="fa fa-circle-o"></i>
       <i class="fa fa-plus"></i>
@@ -20,3 +20,16 @@
     <i class="fa fa-floppy-o"></i>
   </button>
 </div>
+
+<div class="panel panel-default panel-draggable panel-sm" style="top: 50px; left: 80px;" data-ng-show="graphSettings">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      <span translate>GRAPH_SETTINGS</span>
+        <i class="fa fa-times pull-right close"></i>
+    </h3>
+  </div>
+  <div class="panel-body">
+    <pre class="pre-scrollable">{{graphData | json}}</pre>  
+  </div>
+</div>
+   

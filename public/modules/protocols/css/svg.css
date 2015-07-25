@@ -2,6 +2,7 @@ g.node circle {
   fill: #ddd;
   stroke: #000;
   stroke-width: 1.5px;
+  cursor: pointer;
 }
 g.node text {
   font: 10px sans-serif;

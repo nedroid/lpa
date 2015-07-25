@@ -15,6 +15,8 @@ angular.module('protocols').directive('graph', [
         
           $scope.graph = new Graph.instance();
 
+          $scope.nodeType = Graph.NODE_TYPE[$scope.graphData.type];
+
           $scope.save = function() {
             var protocol = new Protocols({
               title: 'TESTTT',
