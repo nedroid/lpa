@@ -1,140 +1,172 @@
 <section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="create()">
-  
-  <lpa-title data-code="PROTOCOLS_NEW"></lpa-title>
-  
-  <div class="row page-content">
+
+  <tabset>
     
-    <div class="col-md-2 hidden-xs">
-      <ul class="graphs-tree"> 
-        <li data-ng-repeat="graph in graphs track by $index" data-ng-click="selected.index = $index" data-ng-class="{active: selected.index == $index}">
-          {{ graph.values.title }}
-        </li>
-       </ul>
-    </div>
-
-    <div class="col-md-10">
-      <protocol>
-        <graph data-ng-repeat="graph in graphs track by $index" data-ng-show="selected.index == $index" data-graph-data="graph" data-edit="true"></graph>
-      </protocol>  
-    </div>
-
-    <div class="panel panel-default panel-draggable panel-md" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <span translate>NODE_SETTINGS</span>
-          <i class="fa fa-times pull-right close" data-ng-click="actions.hideNodeSettings()"></i></h3>
-      </div>
-      <div class="panel-body">
-        <div class="form-horizontal">
-          <div class="form-group">
-            <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="nodeSettings.graph.title" id="graph-title">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="node-label" class="col-sm-3 control-label" translate>NODE_LABEL</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="nodeSettings.node.label" id="node-label">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="node-type" class="col-sm-3 control-label">NODE_TYPE</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="node-type" data-ng-model="nodeSettings.node.type">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="node-size" class="col-sm-3 control-label">NODE_SIZE</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" id="node-size" data-ng-model="nodeSettings.node.size">
-            </div>
-          </div>
-          <div class="form-group" data-ng-show="nodeSettings.node.setStartState">
-            <label for="node-is-start" class="col-sm-3 control-label">IS_START_STATE</label>
-            <div class="col-sm-9">
-              <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()">
-                <i class="fa"></i>
-              </button>
-            </div>
-          </div>
-          <pre class="pre-scrollable">{{nodeSettings | json}}</pre>  
+    <tab>  
+      <tab-heading>
+        <span translate>PROTOCOL</span>: {{protocol.title}}
+      </tab-heading>
+      <div class="row page-content">
+        
+        <div class="col-md-2 hidden-xs">
+          <ul class="graphs-tree"> 
+            <li data-ng-repeat="graph in graphs track by $index" data-ng-click="selected.index = $index" data-ng-class="{active: selected.index == $index}">
+              {{ graph.values.title }}
+            </li>
+           </ul>
         </div>
-      </div>
-    </div>
 
-    <div class="panel panel-default panel-draggable panel-sm" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          <span translate>LINK_SETTINGS</span>
-          <i class="fa fa-times pull-right close" data-ng-click="actions.hideLinkSettings()"></i></h3>
-      </div>
-      <div class="panel-body">
-        <div class="form-horizontal">
-          <div class="form-group">
-            <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.graph.title" id="graph-title">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="link-label" class="col-sm-3 control-label" translate>LINK_LABEL</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" readonly data-ng-value="linkSettings.link.label()" id="link-label">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="link-source-label" class="col-sm-3 control-label" translate>LINK_SOURCE_LABEL</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.source.label" id="link-source-label">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="link-target-label" class="col-sm-3 control-label" translate>LINK_TARGET_LABEL</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.target.label" id="link-target-label">
-            </div>
-          </div>
-          <div class="form-group" data-ng-show="linkSettings.link.queue">
-            <label for="link-queue-in" class="col-sm-3 control-label" translate>LINK_QUEUE_IN</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.in.length" id="link-queue-in">
-            </div>
-          </div>
-          <div class="form-group" data-ng-show="linkSettings.link.queue">
-            <label for="link-queue-out" class="col-sm-3 control-label" translate>LINK_QUEUE_OUT</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.out.length" id="link-queue-out">
-            </div>
-          </div>
-          <div class="form-group" data-ng-hide="linkSettings.link.queue">
-            <label for="link-type" class="col-sm-3 control-label" translate>LINK_TYPE</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.type" id="link-type">
-            </div>
-          </div>
-          <div class="form-group" data-ng-hide="linkSettings.link.queue">
-            <label for="link-name" class="col-sm-3 control-label" translate>LINK_NAME</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" data-ng-model="linkSettings.link.name" id="link-name">
-            </div>
-          </div>
-          <div class="form-group" data-ng-hide="linkSettings.link.queue">
-            <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
-            <div class="col-sm-9">
-              <ui-select data-ng-model="linkSettings.link.process" data-theme="bootstrap" style="width: 100%;" id="link-process">
-                <ui-select-match placeholder="Select process">{{linkSettings.link.process}}</ui-select-match>
-                <ui-select-choices repeat="graph in graphs">
-                  <span ng-bind-html="graph.values.title"></span>
-                </ui-select-choices>
-              </ui-select>
-            </div>
-          </div>
-          <pre class="pre-scrollable">{{linkSettings | json}}</pre>  
+        <div class="col-md-10">
+          <protocol>
+            <graph data-ng-repeat="graph in graphs track by $index" data-ng-show="selected.index == $index" data-graph-data="graph" data-edit="true"></graph>
+          </protocol>  
         </div>
+
+      </div>
+    </tab>
+  
+    <tab select="analyze(protocol)">
+      <tab-heading>
+        <span translate>ANALYSIS</span>
+      </tab-heading>
+      <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+    </tab>
+
+  </tabset>
+
+  <div class="panel panel-default panel-draggable panel-md" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span translate>NODE_SETTINGS</span>
+        <i class="fa fa-times pull-right close" data-ng-click="actions.hideNodeSettings()"></i></h3>
+    </div>
+    <div class="panel-body">
+      <div class="form-horizontal">
+        <div class="form-group">
+          <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="nodeSettings.graph.title" id="graph-title">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="node-label" class="col-sm-3 control-label" translate>NODE_LABEL</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="nodeSettings.node.label" id="node-label">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="node-type" class="col-sm-3 control-label">NODE_TYPE</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="node-type" data-ng-model="nodeSettings.node.type">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="node-size" class="col-sm-3 control-label">NODE_SIZE</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="node-size" data-ng-model="nodeSettings.node.size">
+          </div>
+        </div>
+        <div class="form-group" data-ng-show="nodeSettings.node.setStartState">
+          <label for="node-is-start" class="col-sm-3 control-label">IS_START_STATE</label>
+          <div class="col-sm-9">
+            <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()">
+              <i class="fa"></i>
+            </button>
+          </div>
+        </div>
+        <pre class="pre-scrollable">{{nodeSettings | json}}</pre>  
       </div>
     </div>
+  </div>
 
+  <div class="panel panel-default panel-draggable panel-sm" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
+    <div class="panel-heading">
+      <h3 class="panel-title">
+        <span translate>LINK_SETTINGS</span>
+        <i class="fa fa-times pull-right close" data-ng-click="actions.hideLinkSettings()"></i></h3>
+    </div>
+    <div class="panel-body">
+      <div class="form-horizontal">
+        <div class="form-group">
+          <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="linkSettings.graph.title" id="graph-title">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="link-label" class="col-sm-3 control-label" translate>LINK_LABEL</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" readonly data-ng-value="linkSettings.link.label()" id="link-label">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="link-source-label" class="col-sm-3 control-label" translate>LINK_SOURCE_LABEL</label>
+          <div class="col-sm-9">
+            <ui-select data-ng-model="linkSettings.link.source" data-theme="bootstrap" style="width: 100%;" id="link-source-label">
+              <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
+              <ui-select-choices repeat="node in linkSettings.graph.nodes">
+                <span ng-bind-html="node.label"></span>
+              </ui-select-choices>
+            </ui-select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="link-target-label" class="col-sm-3 control-label" translate>LINK_TARGET_LABEL</label>
+          <div class="col-sm-9">
+            <ui-select data-ng-model="linkSettings.link.target" data-theme="bootstrap" style="width: 100%;" id="link-target-label">
+              <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
+              <ui-select-choices repeat="node in linkSettings.graph.nodes">
+                <span ng-bind-html="node.label"></span>
+              </ui-select-choices>
+            </ui-select>
+          </div>
+        </div>
+        <div class="form-group" data-ng-show="linkSettings.link.queue">
+          <label for="link-queue-in" class="col-sm-3 control-label" translate>LINK_QUEUE_IN</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.in.length" id="link-queue-in">
+          </div>
+        </div>
+        <div class="form-group" data-ng-show="linkSettings.link.queue">
+          <label for="link-queue-out" class="col-sm-3 control-label" translate>LINK_QUEUE_OUT</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.out.length" id="link-queue-out">
+          </div>
+        </div>
+        <div class="form-group" data-ng-hide="linkSettings.link.queue">
+          <label for="link-type" class="col-sm-3 control-label" translate>LINK_TYPE</label>
+          <div class="col-sm-9">
+            <ui-select data-ng-model="linkSettings.link.type" data-theme="bootstrap" style="width: 100%;" id="link-type">
+              <ui-select-match placeholder="Select type">{{$select.selected.text}}</ui-select-match>
+              <ui-select-choices repeat="linkType in linkTypes">
+                <span translate>{{'LINK.TYPE.' + linkType.id}}</span><span> ({{linkType.text}})</span>
+              </ui-select-choices>
+            </ui-select>
+          </div>
+        </div>
+        <div class="form-group" data-ng-hide="linkSettings.link.queue">
+          <label for="link-name" class="col-sm-3 control-label" translate>LINK_NAME</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="linkSettings.link.name" id="link-name">
+          </div>
+        </div>
+        <div class="form-group" data-ng-hide="linkSettings.link.queue">
+          <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
+          <div class="col-sm-9">
+            <ui-select data-ng-model="linkSettings.link.process.title" data-theme="bootstrap" style="width: 100%;" id="link-process">
+              <ui-select-match placeholder="Select process">{{$select.selected.values.title}}</ui-select-match>
+              <ui-select-choices repeat="graph.values.title as graph in graphs">
+                <span ng-bind-html="graph.values.title"></span>
+              </ui-select-choices>
+            </ui-select>
+          </div>
+        </div>
+        <!--
+        <pre class="pre-scrollable">{{linkSettings | json}}</pre>  
+        -->
+      </div>
+    </div>
   </div>
 
 </section>

@@ -10,5 +10,10 @@
 
 	"PROTOCOLS": "Protokoli",
 	"PROTOCOLS_NEW": "Nov Protokol",
-	"PROTOCOLS_LIST": "Seznam Protokolov" 
+	"PROTOCOLS_LIST": "Seznam Protokolov",
+
+	"LINK.TYPE.UNKNOWN": "-",
+	"LINK.TYPE.RECEIVE": "Sprejemanje",
+	"LINK.TYPE.SEND": "Pošiljanje",
+	"LINK.TYPE.LOCAL": "Lokalno"
 }

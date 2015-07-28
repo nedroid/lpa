@@ -176,6 +176,9 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           node: node,
           graph: this_.data()
         });
+
+        this_.temp = this_.temp || {};
+        this_.temp.currentNode = d3.select(this);
       },
 
       linkClicked = function(link) {
@@ -197,6 +200,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           link: link,
           graph: this_.data()
         });
+        this_.temp = this_.temp || {};
+        this_.temp.currentLink = d3.select(this);
       };
 
       // LINKS
@@ -296,10 +301,17 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         this_.values.data.links.push({
           source: source, 
           target: target,
-          linkNum: linkNum,
-          type: options.type || LINKS.TYPE.UNKNOWN,
+          type: options.type || {
+           id: 'UNKNOWN',
+           text: LINKS.TYPE.UNKNOWN
+          },
           name: options.name || label(linkNum),
-          process: options.process || '_',
+          process: options.process || {
+            id: null,
+            text: '_',
+            //deprecated
+            title: '_' 
+          },
           queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE ? undefined : {
             in: {
               length: 1
@@ -313,24 +325,33 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             if(this.queue) {
               label_ = this.queue.in.length + '/' + this.queue.out.length;  
             } else {
-              label_ = this.type + this.name + '(' + this.process + ')';  
+              label_ = LINKS.TYPE[this.type.id] + this.name + '(' + this.process.title + ')';  
             }
             return label_;
+          },
+          rebuild: function() {
+            this_.temp = this_.temp || {};
+            this_.temp.currentLink
+              .text(function(d) { return d.label(); });
           }
         });
-
         this_.build();
       };
       
       this_.temp = this_.temp || {};
 
-      if(!this_.values.svg.selected.node) {
+      if(!this_.values.svg.selected.node && !this_.temp.targetNode) {
         Messenger.post('Select source node and click add link.', 'info');
         return;
       } else if(this_.temp.sourceNode) {
-        addLink(nodeData(this_.temp.sourceNode), nodeData(this_.values.svg.selected.node));
+        if(this_.temp.targetNode) {
+          addLink(this_.temp.sourceNode, this_.temp.targetNode);
+        } else {
+          addLink(nodeData(this_.temp.sourceNode), nodeData(this_.values.svg.selected.node));  
+          Messenger.post('Link added.', 'success');
+        }
         this_.temp.sourceNode = null;
-        Messenger.post('Link added.', 'success');
+        this_.temp.targetNode = null;
       } else {
         this_.temp.sourceNode = this_.values.svg.selected.node;
         Messenger.post('Select target node and click add link.', 'info');
@@ -352,7 +373,13 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         label: nodeLabel,
         size: NODES.SIZE[type],
         type: NODES.TYPE[type],
-        isStart: NODES.TYPE[type] === NODES.TYPE.START_STATE
+        isStart: NODES.TYPE[type] === NODES.TYPE.START_STATE,
+        rebuild: function() {
+          this_.temp = this_.temp || {};
+          this_.temp.currentNode
+            .select('text')
+            .text(function(d, i) { return d.label || i; }); 
+        }
       };
 
       if(this_.values.type === GRAPH.TYPE.PROCESSES) {
@@ -381,40 +408,21 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         };
       }
       
-      // TOOD - remove this
+      this_.values.data.nodes.push(node);
+
       if(this_.values.svg.selected.node) {  
         node.x = nodeData(this_.values.svg.selected.node).x + random(-15, 15);
         node.y = nodeData(this_.values.svg.selected.node).y + random(-15, 15);
+        
+        this_.temp = this_.temp || {};
 
-        this_.values.data.links.push({
-          source: nodeData(this_.values.svg.selected.node), 
-          target: node,
-          type: LINKS.TYPE.UNKNOWN,
-          name: label(1),
-          process: '_',
-          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE ? undefined : {
-            in: {
-              length: 1
-            },
-            out: {
-              length: 1
-            }
-          },
-          label: function() {
-            var label_ = '';
-            if(this.queue) {
-              label_ = this.queue.in.length + '/' + this.queue.out.length;  
-            } else {
-              label_ = this.type + this.name + '(' + this.process + ')';  
-            }
-            return label_;
-          }
-        });
+        this_.temp.sourceNode = nodeData(this_.values.svg.selected.node);
+        this_.temp.targetNode = node;  
+
+        this_.addLink();
+      } else {
+        this_.build();
       }
-
-      this_.values.data.nodes.push(node);
-      
-      this_.build();
     };
 
     Graph.prototype.removeNode = function () {
@@ -644,7 +652,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       empty: createNewGraph,
       NODES: NODES,
       TYPE: GRAPH.TYPE,
-      NODE_TYPE: GRAPH.NODES
+      NODE_TYPE: GRAPH.NODES,
+      LINK_TYPE: LINKS.TYPE
     };
   }
 ]);

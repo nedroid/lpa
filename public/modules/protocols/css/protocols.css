@@ -47,3 +47,8 @@ ul.graphs-tree ul {
   position: absolute;
   bottom: -5px;
 }
+section > div > ul.nav-tabs,
+section > div > ul.nav-pills {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
