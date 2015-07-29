@@ -25,11 +25,13 @@
       </div>
     </tab>
   
-    <tab select="analyze(protocol)">
+    <tab select="analyze()">
       <tab-heading>
         <span translate>ANALYSIS</span>
       </tab-heading>
       <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+      <pre class="pre-scrollable">{{p | json}}</pre>  
 
     </tab>
 
@@ -75,12 +77,14 @@
             </button>
           </div>
         </div>
+        <!--
         <pre class="pre-scrollable">{{nodeSettings | json}}</pre>  
+        -->
       </div>
     </div>
   </div>
 
-  <div class="panel panel-default panel-draggable panel-sm" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
+  <div class="panel panel-default panel-draggable panel-md" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
     <div class="panel-heading">
       <h3 class="panel-title">
         <span translate>LINK_SETTINGS</span>
@@ -154,10 +158,10 @@
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
           <div class="col-sm-9">
-            <ui-select data-ng-model="linkSettings.link.process.title" data-theme="bootstrap" style="width: 100%;" id="link-process">
-              <ui-select-match placeholder="Select process">{{$select.selected.values.title}}</ui-select-match>
-              <ui-select-choices repeat="graph.values.title as graph in graphs">
-                <span ng-bind-html="graph.values.title"></span>
+            <ui-select data-ng-model="linkSettings.link.process.text" on-select="onLinkProcessSelect($item, $model)" data-theme="bootstrap" style="width: 100%;" id="link-process">
+              <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
+              <ui-select-choices repeat="process.label as process in graphs | processFilter">
+                <span ng-bind-html="process.label"></span>
               </ui-select-choices>
             </ui-select>
           </div>

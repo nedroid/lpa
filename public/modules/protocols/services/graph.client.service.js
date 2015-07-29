@@ -20,11 +20,11 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     GRAPH = {
       TYPE: {
         PROCESSES: 'PROCESSES',
-        FINAL_STATE_MACHNE: 'FINAL_STATE_MACHNE'
+        FINAL_STATE_MACHINE: 'FINAL_STATE_MACHINE'
       },
       NODES: {
         PROCESSES: 'PROCESS',
-        FINAL_STATE_MACHNE: 'ACCEPT_STATE'
+        FINAL_STATE_MACHINE: 'ACCEPT_STATE'
       }
     },
 
@@ -82,7 +82,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           value = parseInt(value);
           if(type === GRAPH.TYPE.PROCESSES) {
             label_ += PROC_LABEL_TRANSLATOR[value % PROC_LABEL_TRANSLATOR.length];
-          } else if(type === GRAPH.TYPE.FINAL_STATE_MACHNE) {
+          } else if(type === GRAPH.TYPE.FINAL_STATE_MACHINE) {
             label_ += FSM_LABEL_TRANSLATOR[value % FSM_LABEL_TRANSLATOR.length];
           } else {
             label_ += LABEL_TRANSLATOR[value % LABEL_TRANSLATOR.length];
@@ -204,19 +204,52 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         this_.temp.currentLink = d3.select(this);
       };
 
-      // LINKS
-      this_.values.svg.links = this_.values.svg.links
-        .data(this_.values.force.links(), function(d) { 
-          return d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); 
+      //NODES
+      this_.values.svg.nodes = this_.values.svg.nodes
+        .data(this_.values.force.nodes(), function(d) { 
+          return d.nodeId; 
         });
 
-      this_.values.svg.links.enter().append('svg:g').attr('class', 'link').each(function(d) {
+      this_.values.svg.nodes.enter().append('svg:g').attr('class', 'node').each(function(d) {
+
+        d3.select(this)
+          .append('svg:circle')
+          .attr('class', function(d) { return 'node ' + d.nodeId; })
+          .attr('r', function(d) { return radius(NODES.SIZE[d.type]); })
+          .style('stroke-width', function(d) { return NODES.STROKE_WIDTH[d.type]; })
+          .style('stroke', function(d) { return NODES.STROKE[d.type]; })
+          .style('fill', function(d) { return NODES.COLOR[d.type]; });
+
+        d3.select(this)
+          .append('svg:text')
+          .attr('dy', '.35em')
+          .attr('text-anchor', 'middle')
+          .text(function(d, i) { return d.label || i; }); 
+      
+        d3.select(this)
+          .on('click', nodeClicked)
+          .on('dblclick', nodeDblClicked);
+
+        d3.select(this)
+          .call(this_.values.force.drag);
+      });
+
+      this_.values.svg.nodes.exit()
+        .remove();
+
+       // LINKS
+      this_.values.svg.links = this_.values.svg.links
+        .data(this_.values.force.links(), function(d) { 
+          return d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); 
+        });
+
+      this_.values.svg.links.enter().insert('svg:g',':first-child').attr('class', 'link').each(function(d) {
         
         d3.select(this)
           .append('svg:path')
           .attr('class', 'link')
-          .attr('id', function(d) { return 'link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
-          .attr('marker-end', 'url(#end)');
+          .attr('id', function(d) { return 'link-' + d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); })
+          .attr('marker-end', this_.values.type === GRAPH.TYPE.PROCESSES ? '' : 'url(#end)');
 
         d3.select(this)
           .append('svg:text')
@@ -226,62 +259,29 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           .attr('text-anchor', 'middle')
           .append('svg:textPath')
             .on('dblclick', labelClick)
-            .attr('xlink:href', function(d) { return '#link-' + d.source.node_id + '-' + d.target.node_id + '-' + (d.linkNum || 1); })
+            .attr('xlink:href', function(d) { return '#link-' + d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); })
             .text(function(d) { return d.label(); });       
       });
 
       this_.values.svg.links.exit()
         .remove();
 
-      //NODES
-      this_.values.svg.nodes = this_.values.svg.nodes
-        .data(this_.values.force.nodes(), function(d) { return d.node_id; });
-
-      this_.values.svg.nodes.enter()
-        .append('svg:g')
-        .attr('class', 'node')
-        .each(function(d) {
-
-          d3.select(this)
-            .append('svg:circle')
-            .attr('class', function(d) { return 'node ' + d.node_id; })
-            .attr('r', function(d) { return radius(NODES.SIZE[d.type]); })
-            .style('stroke-width', function(d) { return NODES.STROKE_WIDTH[d.type]; })
-            .style('stroke', function(d) { return NODES.STROKE[d.type]; })
-            .style('fill', function(d) { return NODES.COLOR[d.type]; });
-
-          d3.select(this)
-            .append('svg:text')
-            .attr('dy', '.35em')
-            .attr('text-anchor', 'middle')
-            .text(function(d, i) { return d.label || i; }); 
-        
-          d3.select(this)
-            .on('click', nodeClicked)
-            .on('dblclick', nodeDblClicked);
-
-          d3.select(this)
-            .call(this_.values.force.drag);
-        });
-
-      this_.values.svg.nodes.exit()
-        .remove();
-
+      // START  
       this_.values.force.start();
-
     };
 
-    Graph.prototype.nodeLinks = function(nodeId) {
+    Graph.prototype.nodeLinks = function(nodeId_) {
       var links = [];
       this.values.data.links.forEach(function(link) {
-        if (link.source.node_id === nodeId || link.target.node_id === nodeId) {
+        if (link.source.nodeId === nodeId_ || link.target.nodeId === nodeId_) {
           links.push(link);
         }
       });
       return links;
     };
     
-    Graph.prototype.addLink = function () {
+    Graph.prototype.addLink = function (options) {
+      options = options || {};
 
       var
       this_ = this,
@@ -301,23 +301,21 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         this_.values.data.links.push({
           source: source, 
           target: target,
-          type: options.type || {
-           id: 'UNKNOWN',
+          type: {
+           id: options.typeId || 'UNKNOWN',
            text: LINKS.TYPE.UNKNOWN
           },
+          linkNum: linkNum,
           name: options.name || label(linkNum),
-          process: options.process || {
-            id: null,
-            text: '_',
-            //deprecated
-            title: '_' 
+          process: {
+            id: options.processId || null
           },
-          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE ? undefined : {
+          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHINE ? undefined : {
             in: {
-              length: 1
+              length: options.queueInLength || 1
             },
             out: {
-              length: 1
+              length: options.queueOutLength || 1
             }
           },
           label: function() {
@@ -325,7 +323,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             if(this.queue) {
               label_ = this.queue.in.length + '/' + this.queue.out.length;  
             } else {
-              label_ = LINKS.TYPE[this.type.id] + this.name + '(' + this.process.title + ')';  
+              label_ = LINKS.TYPE[this.type.id] + this.name + '(' + processTitleById(this.process.id) + ')';  
             }
             return label_;
           },
@@ -340,40 +338,42 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       
       this_.temp = this_.temp || {};
 
-      if(!this_.values.svg.selected.node && !this_.temp.targetNode) {
+      if(!this_.values.svg.selected.node && !options.targetNode) {
         Messenger.post('Select source node and click add link.', 'info');
         return;
-      } else if(this_.temp.sourceNode) {
-        if(this_.temp.targetNode) {
-          addLink(this_.temp.sourceNode, this_.temp.targetNode);
+      } else if(this_.temp.sourceNode || options.sourceNode) {
+        if(options.targetNode) {
+          addLink(options.sourceNode, options.targetNode, options);
         } else {
           addLink(nodeData(this_.temp.sourceNode), nodeData(this_.values.svg.selected.node));  
           Messenger.post('Link added.', 'success');
         }
         this_.temp.sourceNode = null;
-        this_.temp.targetNode = null;
       } else {
         this_.temp.sourceNode = this_.values.svg.selected.node;
         Messenger.post('Select target node and click add link.', 'info');
       }
     };
 
-    Graph.prototype.addNode = function (type) {
+    Graph.prototype.addNode = function (type, options) {
       if (!type) {
         Messenger.post('No type selected!', 'error');
         return;
-      } 
+      }
+      
+      options = options || {};
+
       var
       this_ = this,
 
       nodeLabel = label(this_.values.data.nodes.length + 1, this_.values.type),
 
       node = {
-        node_id: uid(),
-        label: nodeLabel,
-        size: NODES.SIZE[type],
-        type: NODES.TYPE[type],
-        isStart: NODES.TYPE[type] === NODES.TYPE.START_STATE,
+        nodeId: options.nodeId || uid(),
+        label: options.label || nodeLabel,
+        size: options.size || NODES.SIZE[type],
+        type: options.type || NODES.TYPE[type],
+        isStart: (options.type || NODES.TYPE[type]) === NODES.TYPE.START_STATE,
         rebuild: function() {
           this_.temp = this_.temp || {};
           this_.temp.currentNode
@@ -382,12 +382,12 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         }
       };
 
-      if(this_.values.type === GRAPH.TYPE.PROCESSES) {
+      if(this_.values.type === GRAPH.TYPE.PROCESSES && !options.type) {
         createNewGraph({
-          type: GRAPH.TYPE.FINAL_STATE_MACHNE,
+          type: GRAPH.TYPE.FINAL_STATE_MACHINE,
           title: nodeLabel
         });  
-      } else if(this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHNE) {
+      } else if(this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHINE) {
         node.setStartState = function() {
           if(this_.values.svg.start.node && this_.values.data.start.node) {
             this_.values.svg.start.node
@@ -413,13 +413,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       if(this_.values.svg.selected.node) {  
         node.x = nodeData(this_.values.svg.selected.node).x + random(-15, 15);
         node.y = nodeData(this_.values.svg.selected.node).y + random(-15, 15);
-        
-        this_.temp = this_.temp || {};
-
-        this_.temp.sourceNode = nodeData(this_.values.svg.selected.node);
-        this_.temp.targetNode = node;  
-
-        this_.addLink();
+        this_.addLink({
+          sourceNode: nodeData(this_.values.svg.selected.node),
+          targetNode: node
+        });
       } else {
         this_.build();
       }
@@ -432,11 +429,11 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         return;
       }
       var 
-      nodeId = nodeData(this_.values.svg.selected.node).node_id,
+      nodeId_ = nodeData(this_.values.svg.selected.node).nodeId,
       nodeIndex,
       nodeLinksIndexes = [];
       this_.values.data.nodes.forEach(function(node, index) {
-        if(node.node_id === nodeId) {
+        if(node.nodeId === nodeId_) {
           nodeIndex = index;
         }
       });
@@ -444,7 +441,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       this_.values.data.nodes.splice(nodeIndex, 1);
       
       this_.values.data.links.forEach(function(link, index) { 
-        this_.nodeLinks(nodeId).forEach(function(nodeLink) {  
+        this_.nodeLinks(nodeId_).forEach(function(nodeLink) {  
           if(nodeLink === link) {
             nodeLinksIndexes.push(index);
           }
@@ -571,20 +568,16 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       this_.values.svg.nodes = svg.selectAll('g.node');
       this_.values.svg.links = svg.selectAll('g.link');
 
-
       this_.values.type = options.type;
       this_.values.title = options.title;
 
       options.nodes = options.nodes || [];
       options.nodes.forEach(function(node) {
-        this_.values.data.nodes.push({
-          _id: node._id,
-          node_id: node._id,
+        this_.addNode(node.type, {
+          nodeId: node._id,
           label: node.label,
           size: node.size,
-          type: node.type,
-          x: node.x,
-          y: node.y
+          type: node.type
         });
       });
       
@@ -593,41 +586,23 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         sourceNode = null;
         targetNode = null;
         this_.values.data.nodes.forEach(function(node) {
-          if(node.node_id === link.source) {
+          if(node.nodeId === link.source) {
             sourceNode = node;
           }
-          if(node.node_id === link.target) {
+          if(node.nodeId === link.target) {
             targetNode = node;  
           }
-        });       
-        this_.values.data.links.push({
-          source: sourceNode,
-          target: targetNode,
-          linkNum: 1,
-          type:  LINKS.TYPE.UNKNOWN,
-          name:  label(1),
-          process: '_',
-          queue: {
-            in: {
-              length: 1
-            },
-            out: {
-              length: 1
-            }
-          },
-          label: function() {
-            var label_ = '';
-            if(this.queue) {
-              label_ = this.queue.in.length + '/' + this.queue.out.length;  
-            } else {
-              label_ = this.type + this.name + '(' + this.process + ')';  
-            }
-            return label_;
-          }
+        });
+        this_.addLink({
+          sourceNode: sourceNode,
+          targetNode: targetNode,
+          typeId: link.typeId,
+          name: link.name,
+          processId: link.processId,
+          queueInLength: link.queueInLength,
+          queueOutLength: link.queueOutLength
         });
       });
-
-      this_.build();
     };
     
     function createNewGraph(options) {
@@ -643,6 +618,21 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     function destroy() {
       graphs.splice(0, graphs.length);
       graphsCount = 0;
+    }
+
+    function processTitleById(id) {
+      var processTitle = '_';
+      for (var i = 0; i < graphs.length; i++) {
+        if(graphs[i].values && graphs[i].values.type === GRAPH.TYPE.PROCESSES) {
+          for (var j = graphs[i].values.data.nodes.length - 1; j >= 0; j--) {
+            if(graphs[i].values.data.nodes[j].nodeId === id) {
+              processTitle = graphs[i].values.data.nodes[j].label;
+              break;
+            }
+          }
+        }
+      }
+      return processTitle;
     }
 
     return {

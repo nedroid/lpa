@@ -29,11 +29,13 @@
       </div>
 
     </tab>
-    <tab select="analyze(protocol)">
+    <tab select="analyze()">
       <tab-heading>
         <span translate>ANALYSIS</span>
       </tab-heading>
       <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+
+      <pre class="pre-scrollable">{{p | json}}</pre>  
 
     </tab>
 

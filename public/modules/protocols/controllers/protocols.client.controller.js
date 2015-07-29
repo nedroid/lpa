@@ -27,6 +27,10 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       }
     }, true);
     
+    $scope.onLinkProcessSelect = function(item, model) {
+      $scope.linkSettings.link.process.id = item.nodeId;
+    };
+
     $scope.create = function() {
       Graph.destroy();
       $scope.graphs = Graph.instances;
@@ -44,6 +48,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
         type: Graph.TYPE.PROCESSES,
         title: 'Protokol title'
       });
+      
       $analytics.eventTrack('lpa.protocols.create', { category: 'protocols', label: 'Create' });
     };
 
@@ -59,18 +64,28 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       $analytics.eventTrack('lpa.protocols.list', { category: 'protocols', label: 'List' });
     };
 
-    $scope.analyze = function(protocol) {
+    $scope.analyze = function() {
       $scope.alerts = [];
 
-      $scope.alerts.push({ 
-        type: 'danger', 
-        msg: 'Not implement yet!' 
+      $scope.p = {
+        title: 'TESTTT',
+        processes: {},
+        finalstatemachines: []
+      };
+
+      Graph.instances.forEach(function(instance) {
+        var graph = instance.data();
+        if (graph.type === Graph.TYPE.PROCESSES) {
+          $scope.p.processes = graph;
+        } else {
+          $scope.p.finalstatemachines.push(graph);  
+        }
       });
 
-      if(protocol) {
+      if($scope.p) {
         $scope.alerts.push({ 
           type: 'success', 
-          msg: 'Protocol: ' + protocol.title 
+          msg: 'Protocol: ' + $scope.p.title 
         });
       } else {
         $scope.alerts.push({ 

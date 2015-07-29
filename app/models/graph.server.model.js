@@ -18,6 +18,12 @@ var GraphSchema = new Schema({
     type: Schema.ObjectId, 
     ref: 'Link'
   }],
+  type: {
+    type: String,
+    default: 'UNKNOWN',
+    trim: true,
+    required: 'Type cannot be blank'
+  },
   user: {
     type: Schema.ObjectId,
     ref: 'User'

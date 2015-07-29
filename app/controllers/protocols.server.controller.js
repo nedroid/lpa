@@ -44,17 +44,21 @@ exports.create = function(req, res) {
           isTarget = false;
           isSource = false;
           nodes.forEach(function(node) {
-            if (link.source.node_id === node.node_id) {
+            if (link.source.nodeId === node.nodeId) {
               link.source = node;
               isSource = true;  
             }
-            if (link.target.node_id === node.node_id) {
+            if (link.target.nodeId === node.nodeId) {
               link.target = node;
               isTarget = true;
             } 
           });
           if(isSource && isTarget) {
             link.user = req.user;
+            if(link.queue){
+              link.queueInLength = link.queue.in && link.queue.in.length;
+              link.queueOutLength = link.queue.out && link.queue.out.length;  
+            }
             links.push(link);
           } else {
             callback_(new Error('Link do not have source or target node from node list'));
@@ -71,7 +75,8 @@ exports.create = function(req, res) {
 
       function(nodes, links, callback_) {
         new GraphModel({
-          title: protocol_.processes.title || 'hardcoded fsm title',
+          title: protocol_.processes.title || 'protocol_.processes.title',
+          type: protocol_.processes.type || 'protocol_.processes.type',
           links: links,
           nodes: nodes,
           user: req.user
@@ -115,20 +120,22 @@ exports.create = function(req, res) {
             isTarget = false;
             isSource = false;
             nodes.forEach(function(node) {
-              if (link.source.node_id === node.node_id) {
+              if (link.source.nodeId === node.nodeId) {
                 link.source = node;
                 isSource = true;  
               }
-              if (link.target.node_id === node.node_id) {
+              if (link.target.nodeId === node.nodeId) {
                 link.target = node;
                 isTarget = true;
               } 
             });
             if(isSource && isTarget) {
               link.user = req.user;
+              link.processId = link.process && link.process.id;
+              link.typeId = link.type && link.type.id;
               links.push(link);
             } else {
-              callback_(new Error('Link do not have source or target node from node list'));
+              callback_(new Error('Link has no source or target node from node list'));
             } 
           });
           LinkModel.create(links, function(err) {
@@ -142,7 +149,8 @@ exports.create = function(req, res) {
 
         function(nodes, links, callback_) {
           new GraphModel({
-            title: fsm.title || 'hardcoded fsm title',
+            title: fsm.title || 'fsm.title',
+            type: fsm.type || 'fsm.type', 
             links: links,
             nodes: nodes,
             user: req.user

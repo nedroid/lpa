@@ -14,10 +14,29 @@ var LinkSchema = new Schema({
     ref: 'Node',
     required: 'Target node cannot be null'
   },
-  label: {
+  typeId: {
     type: String,
-    default: '',
+    default: 'UNKNOWN',
     trim: true
+  },
+  name: {
+    type: String,
+    default: 'x',
+    trim: true
+  },
+  processId: {
+    type: String,
+    trim: true
+  },
+  queueInLength: {
+    type: Number,
+    default: 1,
+    required: 'Queue In Length cannot be null'
+  },
+  queueOutLength: {
+    type: Number,
+    default: 1,
+    required: 'Queue In Length cannot be null'
   },
   user: {
     type: Schema.ObjectId,
