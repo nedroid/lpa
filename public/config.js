@@ -1,10 +1,10 @@
 'use strict';
 
-// Init the application configuration module for AngularJS application
 var ApplicationConfiguration = (function() {
-	// Init module configuration options
-	var applicationModuleName = 'lpa';
-	var applicationModuleVendorDependencies = [
+
+	var 
+	applicationModuleName = 'lpa',
+	applicationModuleVendorDependencies = [
 		'ngResource', 
 		'ngAnimate', 
 		'ngSanitize', 
@@ -15,14 +15,12 @@ var ApplicationConfiguration = (function() {
 		'ui.select',
 		'angulartics',
 		'angulartics.google.analytics'
-	];
+	],
 
-	// Add a new vertical module
-	var registerModule = function(moduleName, dependencies) {
-		// Create angular module
+	registerModule = function(moduleName, dependencies) {
+
 		angular.module(moduleName, dependencies || []);
 
-		// Add the module to the AngularJS configuration file
 		angular.module(applicationModuleName).requires.push(moduleName);
 	};
 
@@ -31,4 +29,5 @@ var ApplicationConfiguration = (function() {
 		applicationModuleVendorDependencies: applicationModuleVendorDependencies,
 		registerModule: registerModule
 	};
+	
 })();

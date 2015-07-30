@@ -6,4 +6,6 @@ angular.module('core').config(['$translateProvider', function($translateProvider
 		suffix: '.json'
 	});
 	$translateProvider.preferredLanguage('si_SL');
+
+  $translateProvider.useSanitizeValueStrategy('escaped');
 }]);

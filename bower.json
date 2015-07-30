@@ -1,23 +1,23 @@
 {
   "name": "meanjs",
   "version": "0.3.2",
-  "description": "Fullstack JavaScript with MongoDB, Express, AngularJS, and Node.js.",
+  "description": "Logical Protocol Analyzer.",
   "dependencies": {
     "bootstrap": "~3",
-    "angular": "~1.2",
-    "angular-resource": "~1.2",
-    "angular-animate": "~1.2",
-    "angular-mocks": "~1.2",
-    "angular-bootstrap": "~0.12.0",
-    "angular-ui-utils": "~0.1.1",
-    "angular-ui-router": "~0.2.11",
-    "fontawesome": "~4.3.0",
+    "angular": "~1.4",
+    "angular-resource": "~1.4",
+    "angular-animate": "~1.4",
+    "angular-mocks": "~1.4",
+    "angular-bootstrap": "~0.13",
+    "angular-ui-utils": "latest",
+    "angular-ui-router": "latest",
+    "fontawesome": "~4",
     "angulartics": "~0.17.2",
-    "angular-translate": "~2.6.1",
-    "angular-translate-loader-static-files": "~2.6.1",
-    "angular-ui-select": "~0.11.2",
-    "d3": "~3.5.5",
-    "messenger": "~1.4.1",
-    "angular-sanitize": "~1.4.1"
+    "angular-translate": "~2.7",
+    "angular-translate-loader-static-files": "~2.7",
+    "angular-ui-select": "~0.12",
+    "d3": "~3.5",
+    "messenger": "~1.4",
+    "angular-sanitize": "~1.4"
   }
 }

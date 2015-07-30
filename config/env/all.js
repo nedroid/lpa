@@ -2,7 +2,7 @@
 
 module.exports = {
 	app: {
-		title: 'LPA',
+		title: 'LPA - Logical Protocol Analyzer',
 		description: 'Logical Protocol Analyzer',
 		keywords: 'protocol, analyzer, pgss, test, fsm, final state machines'
 	},
@@ -44,7 +44,7 @@ module.exports = {
 		lib: {
 			css: [
 				'public/lib/bootstrap/dist/css/bootstrap.css',
-				'public/lib/bootstrap/dist/css/bootstrap-theme.css',
+				//'public/lib/bootstrap/dist/css/bootstrap-theme.css',
 				'public/lib/fontawesome/css/font-awesome.min.css',
 				'public/lib/angular-ui-select/dist/select.min.css',
 				'public/lib/messenger/build/css/messenger.css',
@@ -57,7 +57,16 @@ module.exports = {
 				'public/lib/angular-animate/angular-animate.js',
 				'public/lib/angular-sanitize/angular-sanitize.min.js',
 				'public/lib/angular-ui-router/release/angular-ui-router.js',
-				'public/lib/angular-ui-utils/ui-utils.js',
+				//
+				'public/lib/angular-ui-scroll/dist/ui-scroll.min.js',
+				'public/lib/angular-ui-scrollpoint/dist/scrollpoint.min.js',
+				'public/lib/angular-ui-event/dist/event.min.js',
+				'public/lib/angular-ui-mask/dist/mask.min.js',
+				'public/lib/angular-ui-validate/dist/validate.min.js',
+				'public/lib/angular-ui-indeterminate/dist/indeterminate.min.js',
+				'public/lib/angular-ui-uploader/dist/uploader.min.js',
+				'public/lib/angular-ui-utils/index.js',
+				//'public/lib/angular-ui-utils/ui-utils.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
 				'public/lib/angular-translate/angular-translate.min.js',
 				'public/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',
