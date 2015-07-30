@@ -5,6 +5,9 @@
 	"SIGNIN": "Prijava",
 	"SIGNUP": "Registracija",
 
+	"SAVE": "Shrani",
+	"CLOSE": "Zapri",
+
   "BY": "od",
   "TAKE_A_LOOK": "Poglej",
 
@@ -12,8 +15,17 @@
 	"PROTOCOLS_NEW": "Nov Protokol",
 	"PROTOCOLS_LIST": "Seznam Protokolov",
 
+	"PROTOCOL_SETTINGS": "Nastavitve",
+	"PROTOCOL_TITLE": "Ime protokola",
+	"PROTOCOL_TITLE_ERR": "Vnesite ime protokola, dolgo naj bo vsaj 4 znake!",
+	"NO_PROTOCOL_TITLE": "Niste definirali imena protokola, shranjevanje in analiza nista mogoča!",
+	"PROTOCOL": "Protokol",
+	"ANALYSIS": "Analiza",
+
 	"LINK.TYPE.UNKNOWN": "-",
 	"LINK.TYPE.RECEIVE": "Sprejemanje",
 	"LINK.TYPE.SEND": "Pošiljanje",
-	"LINK.TYPE.LOCAL": "Lokalno"
+	"LINK.TYPE.LOCAL": "Lokalno",
+
+	"NO_SELECTED_NODE": "Ni izbranega elementa!"
 }

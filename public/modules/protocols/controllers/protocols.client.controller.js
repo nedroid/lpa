@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', 'Protocols', 'Graph', 'Actions', '$analytics',
-  function($scope, $stateParams, Protocols, Graph, Actions, $analytics) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
+  function($scope, $stateParams, $location, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
 
     $scope.selected = {
       index: 0
@@ -31,7 +31,62 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       $scope.linkSettings.link.process.id = item.nodeId;
     };
 
+    $scope.openSettings = function() {
+
+      var modalInstance = $modal.open({
+        templateUrl: 'modules/protocols/views/modals/create-protocol.client.modal.html',
+        controller: 'ProtocolsModalController',
+        resolve: {
+          protocol: function () {
+            return $scope.protocol;
+          }
+        }
+      });
+      
+      modalInstance.result.then(function (protocol) {
+        $scope.protocol = protocol;
+      }, function () {
+        if(!$scope.protocol || !$scope.protocol.title) {
+          Messenger.post('NO_PROTOCOL_TITLE', 'error');
+        }
+      });
+
+    };
+
+    $scope.saveProtocol = function() {
+
+      if(!$scope.protocol || !$scope.protocol.title) {
+        Messenger.post('NO_PROTOCOL_TITLE', 'error');
+        return;
+      }
+
+      var protocol = new Protocols({
+        title: $scope.protocol.title,
+        processes: {},
+        finalstatemachines: [],
+      });
+
+      Graph.instances.forEach(function(instance) {
+        var graph = instance.data();
+        if (graph.type === Graph.TYPE.PROCESSES) {
+          protocol.processes = graph;
+        } else {
+          protocol.finalstatemachines.push(graph);  
+        }
+      });
+
+      protocol.$save(function(response) {
+        $location.path('protocols/' + response._id);
+      }, function(errorResponse) {
+        Messenger.post(errorResponse.data.message, 'error');
+      });
+
+    };
+
     $scope.create = function() {
+      
+      $scope.openSettings();
+
       Graph.destroy();
       $scope.graphs = Graph.instances;
 
@@ -43,12 +98,12 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
           });
         }
       }, $scope.linkTypes = []);
-
+      
       Graph.empty({
         type: Graph.TYPE.PROCESSES,
         title: 'Protokol title'
       });
-      
+
       $analytics.eventTrack('lpa.protocols.create', { category: 'protocols', label: 'Create' });
     };
 
@@ -64,36 +119,33 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       $analytics.eventTrack('lpa.protocols.list', { category: 'protocols', label: 'List' });
     };
 
-    $scope.analyze = function() {
+    $scope.analyze = function(protocol) {
       $scope.alerts = [];
-
-      $scope.p = {
-        title: 'TESTTT',
-        processes: {},
-        finalstatemachines: []
-      };
-
-      Graph.instances.forEach(function(instance) {
-        var graph = instance.data();
-        if (graph.type === Graph.TYPE.PROCESSES) {
-          $scope.p.processes = graph;
-        } else {
-          $scope.p.finalstatemachines.push(graph);  
-        }
-      });
-
-      if($scope.p) {
+      
+      if (!protocol) {
         $scope.alerts.push({ 
-          type: 'success', 
-          msg: 'Protocol: ' + $scope.p.title 
-        });
-      } else {
-        $scope.alerts.push({ 
-          type: 'warning', 
+          type: 'danger', 
           msg: 'No protocol defined.' 
         });
-      }
+      } else if (!protocol.title) {
+        $scope.alerts.push({ 
+          type: 'danger', 
+          msg: 'No protocol title defined.' 
+        });
+      } else if (!protocol.processes || !protocol.finalstatemachines ){
+        protocol.processes = {};
+        protocol.finalstatemachines = [];
 
+        Graph.instances.forEach(function(instance) {
+          var graph = instance.data();
+          if (graph.type === Graph.TYPE.PROCESSES) {
+            protocol.processes = graph;
+          } else {
+            protocol.finalstatemachines.push(graph);  
+          }
+        });
+      }
+      $scope.p = protocol;
     };
 
   }

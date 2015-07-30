@@ -1,4 +1,13 @@
 <section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="create()">
+  
+  <div class="pull-right"> 
+    <button class="btn btn-sm btn-default" data-ng-click="openSettings()">
+      <i class="fa fa-cogs"></i>
+    </button>
+    <button class="btn btn-sm btn-default" data-ng-click="saveProtocol()">
+      <i class="fa fa-floppy-o"></i>
+    </button>
+  </div>
 
   <tabset>
     
@@ -25,7 +34,7 @@
       </div>
     </tab>
   
-    <tab select="analyze()">
+    <tab select="analyze(protocol)">
       <tab-heading>
         <span translate>ANALYSIS</span>
       </tab-heading>
