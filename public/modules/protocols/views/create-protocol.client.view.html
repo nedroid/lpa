@@ -38,7 +38,11 @@
       <tab-heading>
         <span translate>ANALYSIS</span>
       </tab-heading>
-      <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+      
+      <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}
+      </alert>
+      
+      <analysis protocol="protocol" analyze="startAnalyze"></analysis>
 
       <pre class="pre-scrollable">{{p | json}}</pre>  
 
@@ -46,7 +50,7 @@
 
   </tabset>
 
-  <div class="panel panel-default panel-draggable panel-md" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
+  <div class="panel panel-default panel-draggable" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
     <div class="panel-heading">
       <h3 class="panel-title">
         <span translate>NODE_SETTINGS</span>
@@ -93,7 +97,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default panel-draggable panel-md" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
+  <div class="panel panel-default panel-draggable col-md-5" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
     <div class="panel-heading">
       <h3 class="panel-title">
         <span translate>LINK_SETTINGS</span>

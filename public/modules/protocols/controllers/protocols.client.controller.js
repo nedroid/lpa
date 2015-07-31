@@ -146,6 +146,8 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
         });
       }
       $scope.p = protocol;
+
+      $scope.startAnalyze = ($scope.startAnalyze && ++$scope.startAnalyze) || 1;
     };
 
   }

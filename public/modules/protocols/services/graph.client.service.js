@@ -472,7 +472,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
 
       filter, 
       feMerge,
-
+      
       tick = function () {
         this_.values.svg.nodes.attr('transform', function(d) {
           return 'translate(' + d.x + ',' + d.y + ')'; 

@@ -59,6 +59,10 @@ h1.app-name-logo:after {
 	color: #FF0000;
 	color: rgba(255,0,0,0.5);
 }
+.panel {
+  padding-left: 0;
+  padding-right: 0;
+}
 .panel-draggable {
   position: fixed;
   z-index: 99999;

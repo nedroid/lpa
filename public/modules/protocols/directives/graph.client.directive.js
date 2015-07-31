@@ -4,7 +4,7 @@ angular.module('protocols').directive('graph', [
   
   function() {
     return {
-      restrict: 'EA',
+      restrict: 'E',
       scope: {
         graphData: '=',
         edit: '='
