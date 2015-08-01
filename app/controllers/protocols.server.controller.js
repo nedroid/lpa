@@ -131,8 +131,6 @@ exports.create = function(req, res) {
             });
             if(isSource && isTarget) {
               link.user = req.user;
-              link.processId = link.process && link.process.id;
-              link.typeId = link.type && link.type.id;
               links.push(link);
             } else {
               callback_(new Error('Link has no source or target node from node list'));
@@ -151,6 +149,7 @@ exports.create = function(req, res) {
           new GraphModel({
             title: fsm.title || 'fsm.title',
             type: fsm.type || 'fsm.type', 
+            parentNodeId: fsm.parentNodeId,
             links: links,
             nodes: nodes,
             user: req.user
@@ -232,7 +231,8 @@ exports.delete = function(req, res) {
 
 exports.list = function(req, res) {
   ProtocolModel.find().sort('-created')
-  .deepPopulate('processes.nodes processes.links user')
+  //.deepPopulate('processes.nodes processes.links user')
+  .deepPopulate('processes.nodes processes.links.source processes.links.target user')
   .exec(function(err, protocols) {
     if (err) {
       return res.status(400).send({
@@ -253,7 +253,9 @@ exports.protocolByID = function(req, res, next, id) {
   }
 
   ProtocolModel.findById(id)
-    .deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links')
+    //.deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links')
+    //.deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links.source finalstatemachines.links.target')
+    .deepPopulate('processes.nodes processes.links.source processes.links.target finalstatemachines.nodes finalstatemachines.links.source finalstatemachines.links.target')
     .exec(function(err, protocol) {
       if (err) return next(err);
       if (!protocol) {

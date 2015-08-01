@@ -21,7 +21,8 @@
 	"NO_PROTOCOL_TITLE": "Niste definirali imena protokola, shranjevanje in analiza nista mogoča!",
 	"PROTOCOL": "Protokol",
 	"ANALYSIS": "Analiza",
-
+	"PROCESS_LIST": "Seznam procesov",
+	
 	"LINK.TYPE.UNKNOWN": "-",
 	"LINK.TYPE.RECEIVE": "Sprejemanje",
 	"LINK.TYPE.SEND": "Pošiljanje",

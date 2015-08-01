@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
-  function($scope, $stateParams, $location, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$filter', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
+  function($scope, $stateParams, $location, $filter, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
 
     $scope.selected = {
       index: 0
@@ -27,10 +27,6 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       }
     }, true);
     
-    $scope.onLinkProcessSelect = function(item, model) {
-      $scope.linkSettings.link.process.id = item.nodeId;
-    };
-
     $scope.openSettings = function() {
 
       var modalInstance = $modal.open({
@@ -101,7 +97,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       
       Graph.empty({
         type: Graph.TYPE.PROCESSES,
-        title: 'Protokol title'
+        title: $filter('translate')('PROCESS_LIST'),
       });
 
       $analytics.eventTrack('lpa.protocols.create', { category: 'protocols', label: 'Create' });

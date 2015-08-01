@@ -154,9 +154,9 @@
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-type" class="col-sm-3 control-label" translate>LINK_TYPE</label>
           <div class="col-sm-9">
-            <ui-select data-ng-model="linkSettings.link.type" data-theme="bootstrap" style="width: 100%;" id="link-type">
-              <ui-select-match placeholder="Select type">{{$select.selected.text}}</ui-select-match>
-              <ui-select-choices repeat="linkType in linkTypes">
+            <ui-select data-ng-model="linkSettings.link.typeId" data-theme="bootstrap" style="width: 100%;" id="link-type">
+              <ui-select-match placeholder="Select type">{{$select.selected | linkTypeName}}</ui-select-match>
+              <ui-select-choices repeat="linkType.id as linkType in linkTypes">
                 <span translate>{{'LINK.TYPE.' + linkType.id}}</span><span> ({{linkType.text}})</span>
               </ui-select-choices>
             </ui-select>
@@ -171,9 +171,9 @@
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
           <div class="col-sm-9">
-            <ui-select data-ng-model="linkSettings.link.process.text" on-select="onLinkProcessSelect($item, $model)" data-theme="bootstrap" style="width: 100%;" id="link-process">
-              <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
-              <ui-select-choices repeat="process.label as process in graphs | processFilter">
+            <ui-select data-ng-model="linkSettings.link.processId" data-theme="bootstrap" style="width: 100%;" id="link-process">
+              <ui-select-match placeholder="Select process">{{$select.selected | processName}}</ui-select-match>
+              <ui-select-choices repeat="process.nodeId as process in graphs | processFilter">
                 <span ng-bind-html="process.label"></span>
               </ui-select-choices>
             </ui-select>

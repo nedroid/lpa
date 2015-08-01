@@ -1,13 +1,14 @@
 'use strict';
 
-angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
-  function(d3, Messenger) {
+angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
+  function(d3, Graph, Messenger) {
 
     var 
 
     graph = {
       svg: null,
       tree: null,
+      protocol: null,
       root: null,
       diagonal: null,
       nodesSize: 0
@@ -22,30 +23,40 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
 
     function createNode(d3node, node_) {
 
-      node_.grid = {};
-      node_.grid.temp = {};
-      node_.grid.data = [];
-      node_.grid.item = {};
-      node_.grid.item.size = node.size;
-      node_.grid.item.startX = -1 * (node.procNum * node_.grid.item.size) / 2;
-      node_.grid.item.startY = 0; //-1 * node.procNum * node_.grid.item.size;
-      node_.grid.item.step = node.size;
+      node_.grid = {
+        data: [],
+        item: {
+          size: node.size,
+          startX: node.procNum * node.size / -2,
+          startY: 0,
+          step: node.size
+        }
+      };
       node_.grid.item.posX = node_.grid.item.startX;
       node_.grid.item.posY = node_.grid.item.startY;
 
       for (var i = 0; i < node.procNum * node.procNum; i++) {
+
         /*
-        if (i % node.procNum) {
-          node_.grid.temp.value = node_.queue && node_.queue.in && node_.queue.in.values && node_.queue.in.values.join(',') || '';
-        } else if (j > i) {
-          node_.grid.temp.value = node_.queue && node_.queue.out && node_.queue.out.values && node_.queue.out.values.join(',') || '';
+        {
+          processes: [],
+          currrentStates: [],
+          depth: 0
+        };
+        */
+        if (Math.floor(i / node.procNum) === i % node.procNum) {
+          node_.value = node_.currrentStates[i % node.procNum].label;
+        } else if (Math.floor(i / node.procNum) < i % node.procNum) {
+          //node_.value = node_.processes.queue.in.values.join(', ');
+          node_.value = '?';
         } else {
-          node_.grid.temp.value = node_.label;
+          //node_.value = node_.processes.queue.out.values.join(', ');
+          node_.value = '?';
         }
-          */
+
         node_.grid.data.push({ 
           time: i, 
-          value: node_.grid.temp.value || '?',
+          value: node_.value,
           width: node_.grid.item.size,
           height: node_.grid.item.size,
           x: node_.grid.item.posX,
@@ -91,34 +102,25 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
         .attr('dx', '12px')
         .text(function(d) { return d.value || '?'; });
 
-      node_.children = [{ 
-        article: 'asd_1',
-        depth: node_.depth + 1,
-        isLeft: true
-      }, {
-        article: 'asd_2',
-        depth: node_.depth + 1,
-        isLeft: false
-      }];
-
     }
 
     function addNode(node_) {
-      
+      /*
       node_.children = [
         { 
-          article: 'asd_1',
-          depth: node_.depth + 1,
-          isLeft: true
+          value: 'A',
+          depth: node_.depth + 1
         },
         {
-          article: 'asd_2',
-          depth: node_.depth + 1,
-          isLeft: false
+          value: 'B',
+          depth: node_.depth + 1
+        },
+        {
+          value: 'C',
+          depth: node_.depth + 1
         }
       ];
-    
-
+      */
       draw(node_);
     }
 
@@ -142,7 +144,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
         .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
         .on('click', click);
 
-      createNode(nodeEnter, node_);
+      createNode(nodeEnter, source);
   
       node_
         .transition()
@@ -207,11 +209,13 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
 
     function click(node_) {
 
-      if (node_.children) {    /* Collapse children */
+      if (node_.children) {
+        /* Collapse children */
         node_._children = node_.children;
         node_.children = null;
         draw(node_);
-      } else if(node_._children) {    /* Expand children */
+      } else if(node_._children) {
+        /* Expand children */
         node_.children = node_._children;
         node_._children = null;  
         draw(node_);
@@ -219,6 +223,192 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
         addNode(node_);
       }
 
+    }
+
+    function getProcessFsmNodes(process) {
+      var fsmNodes = [];
+      graph.protocol.processes.nodes.forEach(function(process) {
+        graph.protocol.finalstatemachines.forEach(function(fsm) {
+          if (process.nodeId === fsm.parentNodeId) {
+            fsmNodes = fsm.nodes;
+          }
+        });
+      });
+      return fsmNodes;
+    }
+    
+    function getProcessFsmLinks(process) {
+      var fsmLinks = [];
+      graph.protocol.processes.nodes.forEach(function(process) {
+        graph.protocol.finalstatemachines.forEach(function(fsm) {
+          if (process.nodeId === fsm.parentNodeId) {
+            fsmLinks = fsm.links;
+          }
+        });
+      });
+      return fsmLinks;
+    }
+
+    function getInQueue(processId) {
+      var queue = [];
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.target.nodeId === processId) {
+          queue = processLink.queue.in.values;
+        }
+      });
+      return queue;
+    }
+    
+    function addToInQueue(processId, msg) {
+      var isAdded = false;
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.source.nodeId === processId) {
+          if (processLink.queue.in.values.length < processLink.queue.in.length) {
+            processLink.queue.in.values.push(msg);
+            isAdded = true;
+          }
+        }
+      });
+      return isAdded;
+    }
+
+    function removeFromInQueue(processId, msg) {
+      var isRemoved = false;
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.source.nodeId === processId) {
+          var index = processLink.queue.in.values.indexOf(msg);
+          if (index >= 0) {
+            processLink.queue.in.values.slice(index);
+            isRemoved = true;
+          }
+        }
+      });
+      return isRemoved;
+    }
+
+    function getOutQueue(processId) {
+      var queue = [];
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.source.nodeId === processId) {
+          queue = processLink.queue.out.values;
+        }
+      });
+      return queue;
+    }
+
+    function addToOutQueue(processId, msg) {
+      var isAdded = false;
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.source.nodeId === processId) {
+          if (processLink.queue.out.values.length < processLink.queue.out.length) {
+            processLink.queue.out.values.push(msg);
+            isAdded = true;
+          }
+        }
+      });
+      return isAdded;
+    }
+
+    function removeFromOutQueue(processId, msg) {
+      var isRemoved = false;
+      graph.protocol.processes.links.forEach(function(processLink) {
+        if (processLink.source.nodeId === processId) {
+          var index = processLink.queue.out.values.indexOf(msg);
+          if (index >= 0) {
+            processLink.queue.out.values.slice(index);
+            isRemoved = true;
+          }
+        }
+      });
+      return isRemoved;
+    }
+
+    function findRootNode() {
+      var rootNode = {
+        processes: [],
+        currrentStates: [],
+        depth: 0
+      };
+
+      // find start nodes in each fsm
+      graph.protocol.processes.nodes.forEach(function(process, index) {
+        graph.protocol.finalstatemachines.forEach(function(fsm) {
+          if (process.nodeId === fsm.parentNodeId) {
+            fsm.nodes.forEach(function(node_) {
+              if (node_.type === 'START_STATE') {
+                rootNode.currrentStates.push(node_);
+              }
+            });
+          }
+        });
+        process.index = index;
+        rootNode.processes.push(process);
+      });
+
+      // init queues
+      graph.protocol.processes.links.forEach(function(processLink, index) {
+        if(!processLink.queue) {
+          processLink.queue = {
+            in: {
+              length: processLink.queueInLength 
+            },
+            out: {
+              length: processLink.queueOutLength
+            }
+          };
+        }
+        processLink.queue.in.values = [];
+        processLink.queue.out.values = [];
+      });
+
+      return rootNode.processes.length === rootNode.currrentStates.length && rootNode;
+    }
+
+    function researchLevel(level, index, process) {
+      
+      var currrentNode = graph.root.currrentStates[index];
+    
+      getProcessFsmLinks(process).forEach(function(link_) {
+        if (link_.source.nodeId === currrentNode.nodeId) {
+          
+          link_.target.depth = level;
+
+          switch(link_.typeId) {
+            case 'RECEIVE':
+              if (addToInQueue(link_.processId, link_.name)) {
+                if(removeFromOutQueue(process.nodeId, link_.name)) {
+                  addNode(link_.target);
+                } else {
+                  removeFromInQueue(link_.processId, link_.name);
+                }
+              }
+              break;
+            case 'SEND':
+              if (addToOutQueue(link_.processId, link_.name)) {
+                if (removeFromInQueue(process.nodeId, link_.name)) {
+                  addNode(link_.target);  
+                } else {
+                  removeFromOutQueue(link_.processId, link_.name);
+                }
+              }
+              break;
+            case 'LOCAL':
+              addNode(link_.target);
+              break;
+            default:
+              Messenger.post('UNKNOWN_LINK_TYPE', 'error');
+              return;
+          }
+        }
+      });
+
+      if(index === graph.root.processes.length - 1) {
+        graph.root.processes.forEach(function (process, index) {
+          if(process.isFinished) {
+            researchLevel(++graph.root.depth, index, process);  
+          }
+        });  
+      }
     }
 
     function drawGraph(protocol) {      
@@ -234,17 +424,21 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
         return;
       }
 
+      graph.protocol = protocol;
+      graph.root = findRootNode();
 
-      //set graph.root node pos
-      graph.root = {
-        article: 'article',
-        depth: 0,
-        isLeft: true
-      };
+      if(!graph.root) {
+        Messenger.post('MISSING_START_STATE', 'error');
+        return;
+      }
       graph.root.x0 = (1500-60) / 2;
       graph.root.y0 = 0;
     
       addNode(graph.root);
+
+      graph.root.processes.forEach(function (process, index) {
+        researchLevel(++graph.root.depth, index, process);
+      });
     }
 
     function init(element) {
@@ -259,7 +453,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Messenger',
       height = 1500 - margin.top - margin.bottom;
 
       graph.tree = d3.layout.tree()
-        .size([width, height]);
+        .size([width, height])
+        .separation(function separation(a, b) {
+          return a.parent === b.parent ? 1 : 2;
+        });
 
       graph.diagonal = d3.svg.diagonal()
         .source(function(d) { return { x: d.source.x, y: ( d.source.y + node.procNum * node.size )}; })            

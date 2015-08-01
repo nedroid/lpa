@@ -106,6 +106,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
 
         type: null,
         title: null,
+        parentNodeId: null,
 
         force: null,
         
@@ -141,6 +142,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       return {
         title: this.values.title,
         type: this.values.type,
+        parentNodeId: this.values.parentNodeId,
         nodes: this.values.data.nodes,
         links: this.values.data.links
       };
@@ -301,15 +303,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         this_.values.data.links.push({
           source: source, 
           target: target,
-          type: {
-           id: options.typeId || 'UNKNOWN',
-           text: LINKS.TYPE.UNKNOWN
-          },
+          typeId: options.typeId || 'UNKNOWN',
           linkNum: linkNum,
           name: options.name || label(linkNum),
-          process: {
-            id: options.processId || null
-          },
+          processId: options.processId,
           queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHINE ? undefined : {
             in: {
               length: options.queueInLength || 1
@@ -323,7 +320,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             if(this.queue) {
               label_ = this.queue.in.length + '/' + this.queue.out.length;  
             } else {
-              label_ = LINKS.TYPE[this.type.id] + this.name + '(' + processTitleById(this.process.id) + ')';  
+              label_ = LINKS.TYPE[this.typeId] + this.name + '(' + processTitleById(this.processId) + ')';  
             }
             return label_;
           },
@@ -385,7 +382,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       if(this_.values.type === GRAPH.TYPE.PROCESSES && !options.type) {
         createNewGraph({
           type: GRAPH.TYPE.FINAL_STATE_MACHINE,
-          title: nodeLabel
+          title: nodeLabel,
+          parentNodeId: node.nodeId
         });  
       } else if(this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHINE) {
         node.setStartState = function() {
@@ -570,11 +568,13 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
 
       this_.values.type = options.type;
       this_.values.title = options.title;
+      this_.values.parentNodeId = options.parentNodeId;
 
       options.nodes = options.nodes || [];
       options.nodes.forEach(function(node) {
         this_.addNode(node.type, {
-          nodeId: node._id,
+          id: node._id,
+          nodeId: node.nodeId,
           label: node.label,
           size: node.size,
           type: node.type
@@ -586,10 +586,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         sourceNode = null;
         targetNode = null;
         this_.values.data.nodes.forEach(function(node) {
-          if(node.nodeId === link.source) {
+          if(node.nodeId === link.source.nodeId) {
             sourceNode = node;
           }
-          if(node.nodeId === link.target) {
+          if(node.nodeId === link.target.nodeId) {
             targetNode = node;  
           }
         });
