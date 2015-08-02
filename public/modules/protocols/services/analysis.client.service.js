@@ -11,7 +11,8 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       protocol: null,
       root: null,
       diagonal: null,
-      nodesSize: 0
+      nodesCount: 0,
+      error: false
     },
 
     node = {
@@ -40,9 +41,11 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         if (Math.floor(i / node.procNum) === i % node.procNum) {
           node_.value = node_.processes[i % node.procNum].currrentFsmNode.label;
         } else if (Math.floor(i / node.procNum) < i % node.procNum) {
-          node_.value = getInQueue(node_.processes[i % node.procNum].nodeId).join(', ');
+          node_.value = node_.processes[i % node.procNum].queue.in;
+          //node_.value = getInQueue(node_.processes[i % node.procNum].nodeId).join(', ');
         } else {
-          node_.value = getOutQueue(node_.processes[i % node.procNum].nodeId).join(', ');
+          node_.value = node_.processes[i % node.procNum].queue.out;
+          //node_.value = getOutQueue(node_.processes[i % node.procNum].nodeId).join(', ');
         }
 
         node_.grid.data.push({ 
@@ -72,18 +75,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .attr('x', function(d) { return d.x; })
         .attr('y', function(d) { return d.y; })
         .attr('width', function(d) { return d.width; })
-        .attr('height', function(d) { return d.height; })
-        .on('mouseover', function() {
-          d3.select(this).style('fill', '#0F0');
-        })
-        .on('mouseout', function() {
-          d3.select(this).style('fill', '#FFF');
-        })
-        .on('click', function() {
-          console.log(d3.select(this));
-        })
-        .style('fill', '#FFF')
-        .style('stroke', '#555');
+        .attr('height', function(d) { return d.height; });
 
       node_.d3
         .append('svg:text')           
@@ -92,24 +84,9 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .attr('dy', '20px')
         .attr('dx', '12px')
         .text(function(d) { return d.value || ''; });
-
     }
 
-    function addChildNode(nodeParent, nodeChild) {
-      nodeParent.children = nodeParent.children || [];
-      var child = {
-        nodeId: nodeChild.nodeId,
-        label: nodeChild.label
-      };
-
-      nodeParent.children.push(nodeChild);
-      
-      draw(nodeChild);
-
-      return nodeChild;
-    }
-
-    function draw(source) {
+    function update(source) {
 
       var 
       nodes = graph.tree.nodes(graph.root).reverse(),
@@ -119,17 +96,20 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
 
       var 
       node_ = graph.svg.selectAll('g.node')
-        .data(nodes, function(d) { return d.id || (d.id = ++graph.nodesSize); });
+        .data(nodes, function(d) { return d.id || (d.id = ++graph.nodesCount); });
 
-      var 
-      nodeEnter = node_.enter().append('g')
+      node_.enter().append('g')
         .attr('class', 'node')
-        .attr('width', function() { return node.procNum * node.size; })
-        .attr('height', function() { return node.procNum * node.size; })
-        .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
-        .on('click', click);
+        .attr('width', function () { return node.procNum * node.size; })
+        .attr('height', function () { return node.procNum * node.size; })
+        .attr('transform', function (d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
+        .each(function (d) {
 
-      createNode(nodeEnter, source);
+          createNode(d3.select(this), d);
+
+          d3.select(this)
+            .on('click', click);
+        });
   
       node_
         .transition()
@@ -143,11 +123,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .transition()
         .duration(duration)
         .attr('transform', function(d) {
-            return 'translate(' + source.x + ',' + source.y+ ')'; 
+          return 'translate(' + source.x + ',' + source.y+ ')'; 
         })
         .remove();
 
-      
       var 
       link = graph.svg.selectAll('path.tree-link')
         .data(links, function(d) { return d.target.id; });
@@ -202,7 +181,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         node_.children = node_._children;
         node_._children = null;   
       }
-      draw(node_);
+      update(node_);
     }
 
     function getProcessFsmNodes(process) {
@@ -301,34 +280,114 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       return isRemoved;
     }
 
-    function findRootNode() {
-      var rootNode = {
-        processes: [],
-        depth: 0
-      },
-      startStatesNum = 0;
+    function transformFsmNode(node_) {
+      return {
+        nodeId: node_.nodeId,
+        label: node_.label
+      };
+    }
+    
+    function transformProcessNode(process) {
+      return {
+        nodeId: process.nodeId,
+        currrentFsmNode: transformFsmNode(process.currrentFsmNode),
+        queue: {
+          in: getInQueue(process.nodeId).join(', '),
+          out: getOutQueue(process.nodeId).join(', ')
+        } 
+      };
+    }
 
-      // find start nodes in each fsm
-      graph.protocol.processes.nodes.forEach(function(process, index) {
-        graph.protocol.finalstatemachines.forEach(function(fsm) {
-          if (process.nodeId === fsm.parentNodeId) {
-            fsm.nodes.forEach(function(node_) {
-              if (node_.type === 'START_STATE') {
-                
-                process.currrentFsmNode = {
-                 nodeId: node_.nodeId,
-                 label: node_.label
-                };
+    function createTreeNode() {
+      var treeNode =  {
+        processes: []
+      };
 
-                process.currrentFsmNode = node_;
-                startStatesNum ++;
-              }
-            });
-          }
-        });
-        process.index = index;
-        rootNode.processes.push(process);
+      graph.protocol.processes.nodes.forEach(function(process) {
+        treeNode.processes.push(transformProcessNode(process));
       });
+
+      return treeNode;
+    }
+
+    function addChildNode(treeNode) {
+      treeNode.children = treeNode.children || [];
+
+      treeNode.children.push(createTreeNode());
+    }
+
+    function getParentProcessCurrentNode (treeNode, processId) {
+      var currrentFsmNode;
+      treeNode.processes.forEach(function (process) {
+        if (process.nodeId === processId) {
+          currrentFsmNode = process.currrentFsmNode;
+        }
+      });
+      return currrentFsmNode;
+    }
+
+    function researchLevel(treeNode, process, index) {
+
+      getProcessFsmLinks(process).forEach(function(link_, linkIndex) {
+
+        if (process.currrentFsmNode.nodeId === link_.source.nodeId) {
+          
+          var tmp = process.currrentFsmNode;
+
+          switch(link_.typeId) {
+            case 'RECEIVE':
+              if(removeFromOutQueue(process.nodeId, link_.name)) {
+                process.currrentFsmNode = link_.target;
+                addChildNode(treeNode);
+              }
+              break;
+            case 'SEND':
+              if (addToOutQueue(link_.processId, link_.name)) {
+                process.currrentFsmNode = link_.target;
+                addChildNode(treeNode);
+              }
+              break;
+            case 'LOCAL':
+              process.currrentFsmNode = link_.target;
+              addChildNode(treeNode);
+              break;
+            default:
+              Messenger.post('UNKNOWN_LINK_TYPE', 'error');
+              return;
+          }
+
+          process.currrentFsmNode = tmp;
+        }
+      });
+
+      if(index === graph.protocol.processes.nodes.length - 1) {
+        if (treeNode.children) {
+          treeNode.children.forEach(function (treeChildNode, index) {
+            graph.protocol.processes.nodes.forEach(function (process_) {
+              process_.currrentFsmNode = getParentProcessCurrentNode(treeChildNode, process_.nodeId);
+              researchLevel(treeChildNode, process_, index);  
+            });  
+          });
+        }
+      }
+    }
+
+    function drawGraph(protocol) {      
+      
+      graph.protocol = protocol;
+      graph.error = false;
+      graph.nodesCount = 0;
+
+      if(!graph.protocol) {
+        Messenger.post('NO_PROTOCOL_TO_ANALYZE', 'error');
+        return;
+      }
+      if(graph.protocol.processes && graph.protocol.processes.nodes && graph.protocol.processes.nodes.length) {
+        node.procNum = graph.protocol.processes.nodes.length;
+      } else {
+        Messenger.post('PROTOCOL_HAS_NO_PROCESSES', 'error');
+        return;
+      }
 
       // init queues
       graph.protocol.processes.links.forEach(function(processLink, index) {
@@ -346,80 +405,36 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         processLink.queue.out.values = [];
       });
 
-      return rootNode.processes.length === startStatesNum && rootNode;
-    }
-
-    function researchLevel(parent, process, index) {
-
-      getProcessFsmLinks(process).forEach(function(link_) {
-        if (process.currrentFsmNode.nodeId === link_.source.nodeId) {
-
-          switch(link_.typeId) {
-            case 'RECEIVE':
-              if (addToInQueue(link_.processId, link_.name)) {
-                if(removeFromOutQueue(process.nodeId, link_.name)) {
-                  parent = addChildNode(parent, link_.target);
-                } else {
-                  removeFromInQueue(link_.processId, link_.name);
-                }
+      // init current process state
+      graph.protocol.processes.nodes.forEach(function(process, index) {
+        graph.protocol.finalstatemachines.forEach(function(fsm) {
+          if (process.nodeId === fsm.parentNodeId) {
+            fsm.nodes.forEach(function(node_) {
+              if (node_.type === 'START_STATE') {
+                process.currrentFsmNode = transformFsmNode(node_);
               }
-              break;
-            case 'SEND':
-              if (addToOutQueue(link_.processId, link_.name)) {
-                if (removeFromInQueue(process.nodeId, link_.name)) {
-                  parent = addChildNode(parent, link_.target);
-                } else {
-                  removeFromOutQueue(link_.processId, link_.name);
-                }
-              }
-              break;
-            case 'LOCAL':
-              parent = addChildNode(parent, link_.target); 
-              break;
-            default:
-              Messenger.post('UNKNOWN_LINK_TYPE', 'error');
-              return;
+            });
           }
+        });
+        if(!process.currrentFsmNode) {
+          Messenger.post('MISSING_START_STATE', 'error');
+          graph.error = true;
         }
       });
 
-      if(index === graph.root.processes.length - 1) {
-        graph.root.processes.forEach(function (process, index) {
-          if(process.isFinished) {
-            researchLevel(parent, process, index);  
-          }
-        });  
-      }
-    }
-
-    function drawGraph(protocol) {      
-      
-      if(!protocol) {
-        Messenger.post('NO_PROTOCOL_TO_ANALYZE', 'error');
-        return;
-      }
-      if(protocol.processes && protocol.processes.nodes && protocol.processes.nodes.length) {
-        node.procNum = protocol.processes.nodes.length;
-      } else {
-        Messenger.post('PROTOCOL_HAS_NO_PROCESSES', 'error');
+      if(graph.error) {
         return;
       }
 
-      graph.protocol = protocol;
-      graph.root = findRootNode();
-
-      if(!graph.root) {
-        Messenger.post('MISSING_START_STATE', 'error');
-        return;
-      }
+      graph.root = createTreeNode();      
       graph.root.x0 = (1500-60) / 2;
       graph.root.y0 = 0;
-    
-      graph.root.processes.forEach(function (process, index) {
+      
+      graph.protocol.processes.nodes.forEach(function (process, index) {
         researchLevel(graph.root, process, index);
       });
 
-      draw(graph.root);
+      update(graph.root);
     }
 
     function init(element) {
@@ -435,7 +450,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
 
       graph.tree = d3.layout.tree()
         .size([width, height])
-        .separation(function separation(a, b) {
+        .separation(function (a, b) {
           return a.parent === b.parent ? 1 : 2;
         });
 

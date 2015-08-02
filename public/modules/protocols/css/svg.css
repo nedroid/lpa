@@ -25,6 +25,10 @@ g.node circle.start {
 /* TREE GRAPH */
 .tree-link {
   fill: none;
-  stroke: #000000;
-  stroke-width: 3px;
+  stroke: #333;
+  stroke-width: 2px;
+}
+rect.cell {
+  fill: none; 
+  stroke: #333;
 }

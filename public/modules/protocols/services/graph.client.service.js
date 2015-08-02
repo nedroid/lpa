@@ -196,8 +196,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       labelClick = function (link) {
         Actions.showLinkSettings({
           style: {
-            top: this.offsetTop + SETTINGS_MARGIN,
-            left: this.offsetLeft + SETTINGS_MARGIN
+            //top: this.offsetTop + SETTINGS_MARGIN,
+            //left: this.offsetLeft + SETTINGS_MARGIN
+            top: 80,
+            left:10
           },
           link: link,
           graph: this_.data()
