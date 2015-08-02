@@ -12,8 +12,8 @@
   "TAKE_A_LOOK": "Poglej",
 
 	"PROTOCOLS": "Protokoli",
-	"PROTOCOLS_NEW": "Nov Protokol",
-	"PROTOCOLS_LIST": "Seznam Protokolov",
+	"PROTOCOLS_NEW": "Nov protokol",
+	"PROTOCOLS_LIST": "Seznam protokolov",
 
 	"PROTOCOL_SETTINGS": "Nastavitve",
 	"PROTOCOL_TITLE": "Ime protokola",
@@ -22,11 +22,27 @@
 	"PROTOCOL": "Protokol",
 	"ANALYSIS": "Analiza",
 	"PROCESS_LIST": "Seznam procesov",
-	
+
+	"LINK_SETTINGS": "Nastavitve povezave procesa",
+	"LINK_SOURCE": "Izvorno vozlišče",
+	"LINK_TARGET": "Ciljno vozlišče",
+	"LINK_TYPE": "Vrsta povezave",
+	"LINK_NAME": "Sporočilo",
+	"LINK_PROCESS": "Proces",
+	"LINK_QUEUE_IN": "Dolžina vhodne vrste",
+	"LINK_QUEUE_OUT": "Dolžina izhodne vrste",
 	"LINK.TYPE.UNKNOWN": "-",
 	"LINK.TYPE.RECEIVE": "Sprejemanje",
 	"LINK.TYPE.SEND": "Pošiljanje",
 	"LINK.TYPE.LOCAL": "Lokalno",
 
-	"NO_SELECTED_NODE": "Ni izbranega elementa!"
+	"NODE_SETTINGS_PROCESSES": "Nastavitve",
+	"NODE_SETTINGS_FINAL_STATE_MACHINE": "Nastavitve procesa",
+	"NODE": "Vozlišče",
+	"START_STATE": "Začetno stanje",
+
+	"NO_SELECTED_NODE": "Ni izbranega elementa!",
+	"PROTOCOL_HAS_NO_PROCESSES": "Protokol nima nobenega procesa",
+	"NO_PROTOCOL_TO_ANALYZE": "Sistemska napaka: Nedefiniran protokol",
+	"MISSING_START_STATE": "Ni definiranega začetnega stanja."
 }

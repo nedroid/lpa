@@ -317,10 +317,12 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           },
           label: function() {
             var label_ = '';
-            if(this.queue) {
-              label_ = this.queue.in.length + '/' + this.queue.out.length;  
+            if (this.queue) {
+              label_ = this.queue.in.length + '/' + this.queue.out.length;
+            } else if (this.typeId === 'LOCAL') {
+              label_ = LINKS.TYPE[this.typeId] + this.name;
             } else {
-              label_ = LINKS.TYPE[this.typeId] + this.name + '(' + processTitleById(this.processId) + ')';  
+              label_ = LINKS.TYPE[this.typeId] + this.name + '(' + processTitleById(this.processId) + ')';
             }
             return label_;
           },

@@ -9,7 +9,11 @@ angular.module('protocols')
     if (angular.isArray(items)) {
       items.forEach(function(item) {
         if (item.values && item.values.type === 'PROCESSES') {
-          out = item.values.data.nodes;
+          item.values.data.nodes.forEach(function (node) {
+            if(props && props.parentNodeId && node.nodeId !== props.parentNodeId) {
+              out.push(node);
+            }
+          });
         }
       });
     } else {

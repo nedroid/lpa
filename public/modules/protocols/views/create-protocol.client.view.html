@@ -44,8 +44,6 @@
       
       <analysis protocol="protocol" analyze="startAnalyze"></analysis>
 
-      <pre class="pre-scrollable">{{p | json}}</pre>  
-
     </tab>
 
   </tabset>
@@ -53,37 +51,43 @@
   <div class="panel panel-default panel-draggable" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
     <div class="panel-heading">
       <h3 class="panel-title">
-        <span translate>NODE_SETTINGS</span>
+        <span translate>{{'NODE_SETTINGS_' + nodeSettings.graph.type}}</span> <span>{{ nodeSettings.graph.title }}</span>
         <i class="fa fa-times pull-right close" data-ng-click="actions.hideNodeSettings()"></i></h3>
     </div>
     <div class="panel-body">
       <div class="form-horizontal">
+        <!--
         <div class="form-group">
           <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" data-ng-model="nodeSettings.graph.title" id="graph-title">
           </div>
         </div>
+        -->
         <div class="form-group">
-          <label for="node-label" class="col-sm-3 control-label" translate>NODE_LABEL</label>
+          <label for="node-label" class="col-sm-3 control-label" translate>NODE</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" data-ng-model="nodeSettings.node.label" id="node-label">
           </div>
         </div>
+        <!--
         <div class="form-group">
           <label for="node-type" class="col-sm-3 control-label">NODE_TYPE</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="node-type" data-ng-model="nodeSettings.node.type">
           </div>
         </div>
+        -->
+        <!--
         <div class="form-group">
           <label for="node-size" class="col-sm-3 control-label">NODE_SIZE</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="node-size" data-ng-model="nodeSettings.node.size">
           </div>
         </div>
+        -->
         <div class="form-group" data-ng-show="nodeSettings.node.setStartState">
-          <label for="node-is-start" class="col-sm-3 control-label">IS_START_STATE</label>
+          <label for="node-is-start" class="col-sm-3 control-label" translate>START_STATE</label>
           <div class="col-sm-9">
             <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()">
               <i class="fa"></i>
@@ -100,25 +104,29 @@
   <div class="panel panel-default panel-draggable col-md-5" data-ng-style="linkSettings.style" data-ng-show="linkSettings.visible">
     <div class="panel-heading">
       <h3 class="panel-title">
-        <span translate>LINK_SETTINGS</span>
+        <span translate>LINK_SETTINGS</span> <span>{{ linkSettings.graph.title }}</span>
         <i class="fa fa-times pull-right close" data-ng-click="actions.hideLinkSettings()"></i></h3>
     </div>
     <div class="panel-body">
       <div class="form-horizontal">
+        <!--
         <div class="form-group">
           <label for="graph-title" class="col-sm-3 control-label" translate>GRAPH_TITLE</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" data-ng-model="linkSettings.graph.title" id="graph-title">
           </div>
         </div>
+        -->
+        <!--
         <div class="form-group">
           <label for="link-label" class="col-sm-3 control-label" translate>LINK_LABEL</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" readonly data-ng-value="linkSettings.link.label()" id="link-label">
           </div>
         </div>
+        -->
         <div class="form-group">
-          <label for="link-source-label" class="col-sm-3 control-label" translate>LINK_SOURCE_LABEL</label>
+          <label for="link-source-label" class="col-sm-3 control-label" translate>LINK_SOURCE</label>
           <div class="col-sm-9">
             <ui-select data-ng-model="linkSettings.link.source" data-theme="bootstrap" style="width: 100%;" id="link-source-label">
               <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
@@ -129,7 +137,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="link-target-label" class="col-sm-3 control-label" translate>LINK_TARGET_LABEL</label>
+          <label for="link-target-label" class="col-sm-3 control-label" translate>LINK_TARGET</label>
           <div class="col-sm-9">
             <ui-select data-ng-model="linkSettings.link.target" data-theme="bootstrap" style="width: 100%;" id="link-target-label">
               <ui-select-match placeholder="Select process">{{$select.selected.label}}</ui-select-match>
@@ -171,9 +179,9 @@
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
           <div class="col-sm-9">
-            <ui-select data-ng-model="linkSettings.link.processId" data-theme="bootstrap" style="width: 100%;" id="link-process">
+            <ui-select data-ng-model="linkSettings.link.processId" data-theme="bootstrap" style="width: 100%;" id="link-process" data-ng-disabled="linkSettings.link.typeId === 'LOCAL'">
               <ui-select-match placeholder="Select process">{{$select.selected | processName}}</ui-select-match>
-              <ui-select-choices repeat="process.nodeId as process in graphs | processFilter">
+              <ui-select-choices repeat="process.nodeId as process in graphs | processFilter : linkSettings.graph">
                 <span ng-bind-html="process.label"></span>
               </ui-select-choices>
             </ui-select>

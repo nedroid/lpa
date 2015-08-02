@@ -6,11 +6,11 @@
 </div>
 
 <div class="modal-body">
-  <form name="protocolForm" novalidate autocomplete="off">
+  <form ng-submit="save()" name="protocolForm" novalidate autocomplete="off">
     <fieldset>
       <div class="form-group">
         <label for="protocolTitle" translate>PROTOCOL_TITLE</label>
-        <input type="text" required id="protocolTitle" name="protocolTitle" class="form-control" data-ng-model="protocol.title" placeholder="{{ PROTOCOL_TITLE | translate }}">
+        <input type="text" required id="protocolTitle" name="protocolTitle" class="form-control" data-ng-model="protocol.title" placeholder="{{ PROTOCOL_TITLE | translate }}" autofocus>
       </div>
       <div data-ng-show="error" class="text-center text-danger">
         <strong data-ng-bind="error | translate"></strong>
@@ -20,6 +20,10 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="save()" translate>SAVE</button>
-  <button class="btn btn-warning" ng-click="close()" translate>CLOSE</button>
+  <button class="btn btn-warning" ng-click="close()">
+    <i class="fa fa-ban"></i> <span translate>CLOSE</span>
+  </button>
+  <button class="btn btn-primary" ng-click="save()">
+    <i class="fa fa-floppy-o"></i> <span translate>SAVE</span>
+  </button>
 </div>
