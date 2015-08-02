@@ -29,6 +29,7 @@ g.node circle.start {
   stroke-width: 2px;
 }
 rect.cell {
-  fill: none; 
+  fill: #fff; 
   stroke: #333;
+  cursor: pointer;
 }

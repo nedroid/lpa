@@ -22,6 +22,17 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
     
     duration = 500;
 
+    function click(node_) {
+      if (node_.children) {
+        node_._children = node_.children;
+        node_.children = null;
+      } else if(node_._children) {
+        node_.children = node_._children;
+        node_._children = null;   
+      }
+      update(node_);
+    }
+
     function createNode(d3node, node_) {
 
       node_.grid = {
@@ -84,6 +95,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .attr('dy', '20px')
         .attr('dx', '12px')
         .text(function(d) { return d.value || ''; });
+
     }
 
     function update(source) {
@@ -96,7 +108,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
 
       var 
       node_ = graph.svg.selectAll('g.node')
-        .data(nodes, function(d) { return d.id || (d.id = ++graph.nodesCount); });
+        .data(nodes, function(d) { return d.id; });
 
       node_.enter().append('g')
         .attr('class', 'node')
@@ -106,6 +118,12 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .each(function (d) {
 
           createNode(d3.select(this), d);
+
+          d3.select(this)
+            .append('svg:text')
+            .attr('x', function () { return (node.procNum * node.size) / -2; })
+            .attr('dy', '-5px')
+            .text(function(d) { return d.id; });
 
           d3.select(this)
             .on('click', click);
@@ -169,19 +187,6 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         d.x0 = d.x;
         d.y0 = d.y;
       });
-    }
-
-    function click(node_) {
-      if (node_.children) {
-        /* Collapse children */
-        node_._children = node_.children;
-        node_.children = null;
-      } else if(node_._children) {
-        /* Expand children */
-        node_.children = node_._children;
-        node_._children = null;   
-      }
-      update(node_);
     }
 
     function getProcessFsmNodes(process) {
@@ -300,6 +305,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
 
     function createTreeNode() {
       var treeNode =  {
+        id: ++graph.nodesCount - 1,
         processes: []
       };
 
