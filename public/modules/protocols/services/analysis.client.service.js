@@ -51,12 +51,8 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
 
         if (Math.floor(i / node.procNum) === i % node.procNum) {
           node_.value = node_.processes[i % node.procNum].currrentFsmNode.label;
-        } else if (Math.floor(i / node.procNum) < i % node.procNum) {
-          node_.value = node_.processes[i % node.procNum].queue.in;
-          //node_.value = getInQueue(node_.processes[i % node.procNum].nodeId).join(', ');
         } else {
-          node_.value = node_.processes[i % node.procNum].queue.out;
-          //node_.value = getOutQueue(node_.processes[i % node.procNum].nodeId).join(', ');
+          node_.value = node_.processes[i % node.procNum].queue.values.join(', ');
         }
 
         node_.grid.data.push({ 
@@ -210,23 +206,26 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       });
       return fsmLinks;
     }
-
-    function getInQueue(processId) {
-      var queue = [];
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.target.nodeId === processId) {
-          queue = processLink.queue.in.values;
-        }
-      });
-      return queue;
-    }
     
-    function addToInQueue(processId, msg) {
-      var isAdded = false;
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.source.nodeId === processId) {
-          if (processLink.queue.in.values.length < processLink.queue.in.length) {
-            processLink.queue.in.values.push(msg);
+    function getParentTreeProcess(parentTreeNode, processId) {
+      var parent;
+      parentTreeNode.processes.forEach(function (process) {
+        if (process.nodeId === processId) {
+          parent = process;
+        }
+      });
+      return parent;
+    }
+
+    function addToQueue(parentTreeNode, processId, msg) {
+      var 
+      isAdded = false,
+      parent = getParentTreeProcess(parentTreeNode, processId);
+  
+      graph.protocol.processes.nodes.forEach(function(processNode) {
+        if (processNode.nodeId === processId) {
+          if (parent.queue.values.length < processNode.queue.length) {
+            processNode.queue.values.push(msg);
             isAdded = true;
           }
         }
@@ -234,54 +233,23 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       return isAdded;
     }
 
-    function removeFromInQueue(processId, msg) {
-      var isRemoved = false;
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.source.nodeId === processId) {
-          var index = processLink.queue.in.values.indexOf(msg);
-          if (index >= 0) {
-            processLink.queue.in.values.slice(index);
+    function removeFromQueue(parentTreeNode, processId, msg) {
+      var 
+      isRemoved = false,
+      parent = getParentTreeProcess(parentTreeNode, processId),
+      index = parent.queue.values.indexOf(msg),
+      queue = parent.queue.values.slice();
+
+      queue.splice(index, 1);
+
+      if (index >= 0) {
+        graph.protocol.processes.nodes.forEach(function(processNode) {
+          if (processNode.nodeId === processId) {
+            processNode.queue.values = queue;
             isRemoved = true;
           }
-        }
-      });
-      return isRemoved;
-    }
-
-    function getOutQueue(processId) {
-      var queue = [];
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.source.nodeId === processId) {
-          queue = processLink.queue.out.values;
-        }
-      });
-      return queue;
-    }
-
-    function addToOutQueue(processId, msg) {
-      var isAdded = false;
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.source.nodeId === processId) {
-          if (processLink.queue.out.values.length < processLink.queue.out.length) {
-            processLink.queue.out.values.push(msg);
-            isAdded = true;
-          }
-        }
-      });
-      return isAdded;
-    }
-
-    function removeFromOutQueue(processId, msg) {
-      var isRemoved = false;
-      graph.protocol.processes.links.forEach(function(processLink) {
-        if (processLink.source.nodeId === processId) {
-          var index = processLink.queue.out.values.indexOf(msg);
-          if (index >= 0) {
-            processLink.queue.out.values.slice(index);
-            isRemoved = true;
-          }
-        }
-      });
+        });
+      }
       return isRemoved;
     }
 
@@ -297,9 +265,8 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         nodeId: process.nodeId,
         currrentFsmNode: transformFsmNode(process.currrentFsmNode),
         queue: {
-          in: getInQueue(process.nodeId).join(', '),
-          out: getOutQueue(process.nodeId).join(', ')
-        } 
+          values: process.queue.values.slice()
+        }
       };
     }
 
@@ -308,54 +275,43 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         id: ++graph.nodesCount - 1,
         processes: []
       };
-
       graph.protocol.processes.nodes.forEach(function(process) {
         treeNode.processes.push(transformProcessNode(process));
       });
-
       return treeNode;
     }
 
-    function addChildNode(treeNode) {
-      treeNode.children = treeNode.children || [];
+    function addChildNode(parentTreeNode) {
+      parentTreeNode.children = parentTreeNode.children || [];
 
-      treeNode.children.push(createTreeNode());
+      parentTreeNode.children.push(createTreeNode());
     }
 
-    function getParentProcessCurrentNode (treeNode, processId) {
-      var currrentFsmNode;
-      treeNode.processes.forEach(function (process) {
-        if (process.nodeId === processId) {
-          currrentFsmNode = process.currrentFsmNode;
-        }
-      });
-      return currrentFsmNode;
-    }
-
-    function researchLevel(treeNode, process, index) {
+    function researchLevel(parentTreeNode, process, index) {
 
       getProcessFsmLinks(process).forEach(function(link_, linkIndex) {
 
         if (process.currrentFsmNode.nodeId === link_.source.nodeId) {
           
           var tmp = process.currrentFsmNode;
+          process.queue.values = [];
 
           switch(link_.typeId) {
-            case 'RECEIVE':
-              if(removeFromOutQueue(process.nodeId, link_.name)) {
+            case 'SEND':
+              if (addToQueue(parentTreeNode, link_.processId, link_.name)) {
                 process.currrentFsmNode = link_.target;
-                addChildNode(treeNode);
+                addChildNode(parentTreeNode);
               }
               break;
-            case 'SEND':
-              if (addToOutQueue(link_.processId, link_.name)) {
+            case 'RECEIVE':
+              if (removeFromQueue(parentTreeNode, process.nodeId, link_.name)) {
                 process.currrentFsmNode = link_.target;
-                addChildNode(treeNode);
+                addChildNode(parentTreeNode);
               }
               break;
             case 'LOCAL':
               process.currrentFsmNode = link_.target;
-              addChildNode(treeNode);
+              addChildNode(parentTreeNode);
               break;
             default:
               Messenger.post('UNKNOWN_LINK_TYPE', 'error');
@@ -367,10 +323,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       });
 
       if(index === graph.protocol.processes.nodes.length - 1) {
-        if (treeNode.children) {
-          treeNode.children.forEach(function (treeChildNode, index) {
+        if (parentTreeNode.children) {
+          parentTreeNode.children.forEach(function (treeChildNode, index) {
             graph.protocol.processes.nodes.forEach(function (process_) {
-              process_.currrentFsmNode = getParentProcessCurrentNode(treeChildNode, process_.nodeId);
+              process_.currrentFsmNode = getParentTreeProcess(treeChildNode, process_.nodeId).currrentFsmNode;
               researchLevel(treeChildNode, process_, index);  
             });  
           });
@@ -395,23 +351,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         return;
       }
 
-      // init queues
-      graph.protocol.processes.links.forEach(function(processLink, index) {
-        if(!processLink.queue) {
-          processLink.queue = {
-            in: {
-              length: processLink.queueInLength 
-            },
-            out: {
-              length: processLink.queueOutLength
-            }
-          };
-        }
-        processLink.queue.in.values = [];
-        processLink.queue.out.values = [];
-      });
-
-      // init current process state
+      // init current process state and queues
       graph.protocol.processes.nodes.forEach(function(process, index) {
         graph.protocol.finalstatemachines.forEach(function(fsm) {
           if (process.nodeId === fsm.parentNodeId) {
@@ -426,6 +366,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
           Messenger.post('MISSING_START_STATE', 'error');
           graph.error = true;
         }
+        process.queue = {
+          length: process.queueLength,
+          values: []
+        };
       });
 
       if(graph.error) {

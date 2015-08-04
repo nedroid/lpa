@@ -18,13 +18,8 @@ exports.create = function(req, res) {
     async.waterfall([
 
       function(callback_) {
-        var nodes = [];
-        protocol_.processes.nodes = protocol_.processes.nodes || [];
-        protocol_.processes.nodes.forEach(function(node) {
-          node.user = req.user;
-          nodes.push(node);
-        });
-        NodeModel.create(nodes, function(err) {
+        var nodes;
+        NodeModel.create(protocol_.processes.nodes, function(err) {
           nodes = [];
           for (var i = 1; i < arguments.length; ++i) {
             nodes.push(arguments[i]);
@@ -54,11 +49,6 @@ exports.create = function(req, res) {
             } 
           });
           if(isSource && isTarget) {
-            link.user = req.user;
-            if(link.queue){
-              link.queueInLength = link.queue.in && link.queue.in.length;
-              link.queueOutLength = link.queue.out && link.queue.out.length;  
-            }
             links.push(link);
           } else {
             callback_(new Error('Link do not have source or target node from node list'));
@@ -78,8 +68,7 @@ exports.create = function(req, res) {
           title: protocol_.processes.title || 'protocol_.processes.title',
           type: protocol_.processes.type || 'protocol_.processes.type',
           links: links,
-          nodes: nodes,
-          user: req.user
+          nodes: nodes
         }).save(callback_);
       }
 
@@ -94,13 +83,8 @@ exports.create = function(req, res) {
       async.waterfall([
 
         function(callback_) {
-          var nodes = [];
-          fsm.nodes = fsm.nodes || [];
-          fsm.nodes.forEach(function(node) {
-            node.user = req.user;
-            nodes.push(node);
-          });
-          NodeModel.create(nodes, function(err) {
+          var nodes;
+          NodeModel.create(fsm.nodes, function(err) {
             nodes = [];
             for (var i = 1; i < arguments.length; ++i) {
               nodes.push(arguments[i]);
@@ -130,7 +114,6 @@ exports.create = function(req, res) {
               } 
             });
             if(isSource && isTarget) {
-              link.user = req.user;
               links.push(link);
             } else {
               callback_(new Error('Link has no source or target node from node list'));
@@ -151,8 +134,7 @@ exports.create = function(req, res) {
             type: fsm.type || 'fsm.type', 
             parentNodeId: fsm.parentNodeId,
             links: links,
-            nodes: nodes,
-            user: req.user
+            nodes: nodes
           }).save(callback_);
         }
 

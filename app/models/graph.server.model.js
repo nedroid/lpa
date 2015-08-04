@@ -27,14 +27,6 @@ var GraphSchema = new Schema({
   parentNodeId: {
     type: String,
     trim: true
-  },
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
-  created: {
-    type: Date,
-    default: Date.now
   }
 });
 

@@ -94,6 +94,12 @@
             </button>
           </div>
         </div>
+        <div class="form-group" data-ng-hide="nodeSettings.node.setStartState">
+          <label for="node-queue-length" class="col-sm-3 control-label" translate>NODE_QUEUE_LENGTH</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" data-ng-model="nodeSettings.node.queueLength" id="node-queue-length">
+          </div>
+        </div>
         <!--
         <pre class="pre-scrollable">{{nodeSettings | json}}</pre>  
         -->
@@ -147,23 +153,11 @@
             </ui-select>
           </div>
         </div>
-        <div class="form-group" data-ng-show="linkSettings.link.queue">
-          <label for="link-queue-in" class="col-sm-3 control-label" translate>LINK_QUEUE_IN</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.in.length" id="link-queue-in">
-          </div>
-        </div>
-        <div class="form-group" data-ng-show="linkSettings.link.queue">
-          <label for="link-queue-out" class="col-sm-3 control-label" translate>LINK_QUEUE_OUT</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" data-ng-model="linkSettings.link.queue.out.length" id="link-queue-out">
-          </div>
-        </div>
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-type" class="col-sm-3 control-label" translate>LINK_TYPE</label>
           <div class="col-sm-9">
             <ui-select data-ng-model="linkSettings.link.typeId" data-theme="bootstrap" style="width: 100%;" id="link-type">
-              <ui-select-match placeholder="Select type">{{$select.selected | linkTypeName}}</ui-select-match>
+              <ui-select-match placeholder="{{ SELECT_LINK_TYPE | translate }}">{{$select.selected | linkTypeName}}</ui-select-match>
               <ui-select-choices repeat="linkType.id as linkType in linkTypes">
                 <span translate>{{'LINK.TYPE.' + linkType.id}}</span><span> ({{linkType.text}})</span>
               </ui-select-choices>
@@ -179,8 +173,8 @@
         <div class="form-group" data-ng-hide="linkSettings.link.queue">
           <label for="link-process" class="col-sm-3 control-label" translate>LINK_PROCESS</label>
           <div class="col-sm-9">
-            <ui-select data-ng-model="linkSettings.link.processId" data-theme="bootstrap" style="width: 100%;" id="link-process" data-ng-disabled="linkSettings.link.typeId === 'LOCAL'">
-              <ui-select-match placeholder="Select process">{{$select.selected | processName}}</ui-select-match>
+            <ui-select data-ng-model="linkSettings.link.processId" data-theme="bootstrap" style="width: 100%;" id="link-process" data-ng-disabled="linkSettings.link.typeId === 'LOCAL' || graphs.length === 2">
+              <ui-select-match placeholder="{{ SELECT_PROCESS | translate }}">{{$select.selected | processName}}</ui-select-match>
               <ui-select-choices repeat="process.nodeId as process in graphs | processFilter : linkSettings.graph">
                 <span ng-bind-html="process.label"></span>
               </ui-select-choices>

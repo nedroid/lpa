@@ -27,24 +27,6 @@ var LinkSchema = new Schema({
   processId: {
     type: String,
     trim: true
-  },
-  queueInLength: {
-    type: Number,
-    default: 1,
-    required: 'Queue In Length cannot be null'
-  },
-  queueOutLength: {
-    type: Number,
-    default: 1,
-    required: 'Queue In Length cannot be null'
-  },
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
-  created: {
-    type: Date,
-    default: Date.now
   }
 });
 

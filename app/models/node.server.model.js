@@ -23,6 +23,11 @@ var NodeSchema = new Schema({
     type: String,
     trim: true
   },
+  queueLength: {
+    type: Number,
+    default: 1,
+    required: 'Queue length cannot be null'
+  },
   x: {
     type: Number,
     default: 0,
@@ -37,14 +42,6 @@ var NodeSchema = new Schema({
     type: Number,
     default: 12,
     required: 'Size cannot be null'
-  },
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User'
-  },
-  created: {
-    type: Date,
-    default: Date.now
   }
 });
 

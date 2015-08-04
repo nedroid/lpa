@@ -309,22 +309,14 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           linkNum: linkNum,
           name: options.name || label(linkNum),
           processId: options.processId,
-          queue: this_.values.type === GRAPH.TYPE.FINAL_STATE_MACHINE ? undefined : {
-            in: {
-              length: options.queueInLength || 1
-            },
-            out: {
-              length: options.queueOutLength || 1
-            }
-          },
           label: function() {
             var label_ = '';
-            if (this.queue) {
-              label_ = this.queue.in.length + '/' + this.queue.out.length;
+            if (this.source.type === NODES.TYPE.PROCESS && this.target.type === NODES.TYPE.PROCESS) {
+              label_ = processById(this.source.nodeId).queueLength + '/' + processById(this.source.nodeId).queueLength;
             } else if (this.typeId === 'LOCAL') {
               label_ = LINKS.TYPE[this.typeId] + this.name;
             } else {
-              label_ = LINKS.TYPE[this.typeId] + this.name + '(' + processTitleById(this.processId) + ')';
+              label_ = LINKS.TYPE[this.typeId] + this.name + '(' + (processById(this.processId).label || '_') + ')';
             }
             return label_;
           },
@@ -375,6 +367,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         size: options.size || NODES.SIZE[type],
         type: options.type || NODES.TYPE[type],
         isStart: (options.type || NODES.TYPE[type]) === NODES.TYPE.START_STATE,
+        queueLength: options.queueLength || 1,
         rebuild: function() {
           this_.temp = this_.temp || {};
           this_.temp.currentNode
@@ -581,7 +574,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           nodeId: node.nodeId,
           label: node.label,
           size: node.size,
-          type: node.type
+          type: node.type,
+          queueLength: node.queueLength
         });
       });
       
@@ -602,9 +596,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           targetNode: targetNode,
           typeId: link.typeId,
           name: link.name,
-          processId: link.processId,
-          queueInLength: link.queueInLength,
-          queueOutLength: link.queueOutLength
+          processId: link.processId
         });
       });
     };
@@ -624,19 +616,19 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       graphsCount = 0;
     }
 
-    function processTitleById(id) {
-      var processTitle = '_';
+    function processById(id) {
+      var process = {};
       for (var i = 0; i < graphs.length; i++) {
         if(graphs[i].values && graphs[i].values.type === GRAPH.TYPE.PROCESSES) {
           for (var j = graphs[i].values.data.nodes.length - 1; j >= 0; j--) {
             if(graphs[i].values.data.nodes[j].nodeId === id) {
-              processTitle = graphs[i].values.data.nodes[j].label;
+              process = graphs[i].values.data.nodes[j];
               break;
             }
           }
         }
       }
-      return processTitle;
+      return process;
     }
 
     return {
