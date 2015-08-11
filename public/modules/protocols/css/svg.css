@@ -23,7 +23,7 @@ g.node circle.start {
 }
 
 /* TREE GRAPH */
-.tree-link {
+path.tree-link {
   fill: none;
   stroke: #333;
   stroke-width: 2px;
@@ -32,4 +32,13 @@ rect.cell {
   fill: #fff; 
   stroke: #333;
   cursor: pointer;
+}
+g.text-tree-node circle {
+  stroke: #333;
+  fill: #fff;
+  stroke-width: 2px;
+}
+g.text-tree-node text {
+  font: 14px sans-serif;
+  pointer-events: none;
 }

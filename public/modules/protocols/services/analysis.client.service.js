@@ -20,7 +20,14 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       size: 30
     },
     
-    duration = 500;
+    duration = 500,
+
+    NODE_TYPE = {
+      QUEUE_FULL: 'QUEUE_FULL',
+      UNDEFINED_RECEIVE: 'UNDEFINED_RECEIVE',
+      REPEATING: 'REPEATING',
+      NORMAL: 'NORMAL'
+    };
 
     function click(node_) {
       if (node_.children) {
@@ -33,6 +40,29 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       update(node_);
     }
 
+    function creatTextNode(d3node, value) {
+      var 
+      g = d3node.selectAll('g')
+        .data([value])
+        .enter()
+        .append('svg:g')
+        .attr('class', 'text-tree-node')
+        .each(function (d) {
+
+          d3.select(this)
+            .append('svg:circle')
+            .attr('r', 22)
+            .attr('cx', '2px')
+            .attr('cy', '22px');
+
+          d3.select(this)
+            .append('svg:text')
+            .attr('dx', '-8px')
+            .attr('dy', '26px')
+            .text(d);    
+        });
+    }
+    
     function createNode(d3node, node_) {
 
       node_.grid = {
@@ -72,26 +102,28 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         }
       }
 
-      node_.d3 = d3node.selectAll('g')
+      d3node.selectAll('g')
         .data(node_.grid.data)
-        .enter().append('svg:g');
+        .enter()
+        .append('svg:g')
+        .each(function (d) {
+          
+          d3.select(this)
+            .append('svg:rect')
+            .attr('class', 'cell')
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
+            .attr('width', function(d) { return d.width; })
+            .attr('height', function(d) { return d.height; });
 
-      node_.d3
-        .append('svg:rect')
-        .attr('class', 'cell')
-        .attr('x', function(d) { return d.x; })
-        .attr('y', function(d) { return d.y; })
-        .attr('width', function(d) { return d.width; })
-        .attr('height', function(d) { return d.height; });
-
-      node_.d3
-        .append('svg:text')           
-        .attr('x', function(d) { return d.x; })
-        .attr('y', function(d) { return d.y; })
-        .attr('dy', '20px')
-        .attr('dx', '12px')
-        .text(function(d) { return d.value || ''; });
-
+          d3.select(this)
+            .append('svg:text')           
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
+            .attr('dy', '20px')
+            .attr('dx', '12px')
+            .text(function(d) { return d.value || ''; });
+        });
     }
 
     function update(source) {
@@ -113,16 +145,28 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         .attr('transform', function (d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
         .each(function (d) {
 
-          createNode(d3.select(this), d);
+          switch(d.typeId) {
+            case NODE_TYPE.QUEUE_FULL:
+              creatTextNode(d3.select(this), 'PV');
+              break;
+            case NODE_TYPE.UNDEFINED_RECEIVE:
+              creatTextNode(d3.select(this), 'NS');
+              break;
+            case NODE_TYPE.REPEATING:
+              creatTextNode(d3.select(this), d.repeatingNodeId);
+              break;
+            default:
+              createNode(d3.select(this), d);
 
-          d3.select(this)
-            .append('svg:text')
-            .attr('x', function () { return (node.procNum * node.size) / -2; })
-            .attr('dy', '-5px')
-            .text(function(d) { return d.id; });
+              d3.select(this)
+                .append('svg:text')
+                .attr('x', function () { return (node.procNum * node.size) / -2; })
+                .attr('dy', '-5px')
+                .text(function(d) { return d.id; });
 
-          d3.select(this)
-            .on('click', click);
+              d3.select(this)
+                .on('click', click);
+          }
         });
   
       node_
@@ -220,16 +264,21 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
     function addToQueue(parentTreeNode, processId, msg) {
       var 
       isAdded = false,
-      parent = getParentTreeProcess(parentTreeNode, processId);
+      parent = getParentTreeProcess(parentTreeNode, processId),
+      queue = parent.queue.values.slice();
   
-      graph.protocol.processes.nodes.forEach(function(processNode) {
-        if (processNode.nodeId === processId) {
-          if (parent.queue.values.length < processNode.queue.length) {
-            processNode.queue.values.push(msg);
+      queue.push(msg);
+
+      if (parent.queue.values.length < queue.length) {
+        graph.protocol.processes.nodes.forEach(function(processNode) {
+          if (processNode.nodeId === processId) {
+            processNode.queue.values = queue;
             isAdded = true;
+          } else {
+            processNode.queue.values = getParentTreeProcess(parentTreeNode, processNode.nodeId).queue.values.slice();
           }
-        }
-      });
+        });
+      }
       return isAdded;
     }
 
@@ -247,6 +296,8 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
           if (processNode.nodeId === processId) {
             processNode.queue.values = queue;
             isRemoved = true;
+          } else {
+            processNode.queue.values = getParentTreeProcess(parentTreeNode, processNode.nodeId).queue.values.slice();
           }
         });
       }
@@ -265,72 +316,113 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         nodeId: process.nodeId,
         currrentFsmNode: transformFsmNode(process.currrentFsmNode),
         queue: {
-          values: process.queue.values.slice()
+          values: process.queue.values.slice(),
+          length: process.queue.length
         }
       };
     }
 
-    function createTreeNode() {
+    function compareTreeNodes(node1, node2) {
+      var count = 0;
+      if (node1.typeId === NODE_TYPE.NORMAL && node2.typeId === NODE_TYPE.NORMAL) {
+        node1.processes.forEach(function(p1) {
+          node2.processes.forEach(function(p2) {
+            if (p1.nodeId === p2.nodeId && angular.equals(p1.queue, p2.queue) &&
+              p1.currrentFsmNode.nodeId === p2.currrentFsmNode.nodeId) {
+              count++;
+            }
+          });
+        });
+      }
+      return node1.processes.length === node2.processes.length && node1.processes.length === count;
+    }
+
+    function isTreeNodeExists(currrentTreeNode, treeNode) {
+      var index = -1;
+      if (compareTreeNodes(currrentTreeNode, treeNode)) {
+        index = graph.root.id;
+      } else if (currrentTreeNode.children && currrentTreeNode.children.length > 0) {
+        for (var i = 0; i < currrentTreeNode.children.length; i++) {
+          if((index = isTreeNodeExists(currrentTreeNode.children[i], treeNode)) > 0) {
+            break; 
+          }
+        }
+      }
+      return index;
+    }
+
+    function createTreeNode(options) {
+      options = options || {};
+      
       var treeNode =  {
         id: ++graph.nodesCount - 1,
-        processes: []
+        processes: [],
+        typeId: options.typeId || NODE_TYPE.NORMAL
       };
+
       graph.protocol.processes.nodes.forEach(function(process) {
         treeNode.processes.push(transformProcessNode(process));
       });
+
+      if (graph.root && (treeNode.repeatingNodeId = isTreeNodeExists(graph.root, treeNode)) >= 0) {
+        treeNode.typeId = NODE_TYPE.REPEATING;
+      }
+
       return treeNode;
     }
 
-    function addChildNode(parentTreeNode) {
+    function addChildNode(parentTreeNode, options) {
       parentTreeNode.children = parentTreeNode.children || [];
 
-      parentTreeNode.children.push(createTreeNode());
+      parentTreeNode.children.push(createTreeNode(options));
     }
 
-    function researchLevel(parentTreeNode, process, index) {
+    function researchLevel(parentTreeNode, index) {
 
-      getProcessFsmLinks(process).forEach(function(link_, linkIndex) {
+      graph.protocol.processes.nodes.forEach(function (process) {
 
-        if (process.currrentFsmNode.nodeId === link_.source.nodeId) {
-          
-          var tmp = process.currrentFsmNode;
-          process.queue.values = [];
-
-          switch(link_.typeId) {
-            case 'SEND':
-              if (addToQueue(parentTreeNode, link_.processId, link_.name)) {
-                process.currrentFsmNode = link_.target;
+        getProcessFsmLinks(process).forEach(function(link) {
+  
+          process.currrentFsmNode = getParentTreeProcess(parentTreeNode, process.nodeId).currrentFsmNode;
+ 
+          if (process.currrentFsmNode.nodeId === link.source.nodeId) {
+        
+            switch(link.typeId) {
+              case 'SEND':
+                if (addToQueue(parentTreeNode, process.nodeId, link.name)) {
+                  process.currrentFsmNode = link.target;
+                  addChildNode(parentTreeNode);
+                } else {
+                  addChildNode(parentTreeNode, {
+                    typeId: NODE_TYPE.QUEUE_FULL
+                  });
+                }
+                break;
+              case 'RECEIVE':
+                if (removeFromQueue(parentTreeNode, link.processId, link.name)) {
+                  process.currrentFsmNode = link.target;
+                  addChildNode(parentTreeNode);
+                } else if (getParentTreeProcess(parentTreeNode, link.processId).queue.values.length > 0) {
+                  addChildNode(parentTreeNode, {
+                    typeId: NODE_TYPE.UNDEFINED_RECEIVE
+                  });
+                }
+                break;
+              case 'LOCAL':
+                process.currrentFsmNode = link.target;
                 addChildNode(parentTreeNode);
-              }
-              break;
-            case 'RECEIVE':
-              if (removeFromQueue(parentTreeNode, process.nodeId, link_.name)) {
-                process.currrentFsmNode = link_.target;
-                addChildNode(parentTreeNode);
-              }
-              break;
-            case 'LOCAL':
-              process.currrentFsmNode = link_.target;
-              addChildNode(parentTreeNode);
-              break;
-            default:
-              Messenger.post('UNKNOWN_LINK_TYPE', 'error');
-              return;
+                break;
+            }
           }
-
-          process.currrentFsmNode = tmp;
-        }
+        });
       });
-
-      if(index === graph.protocol.processes.nodes.length - 1) {
-        if (parentTreeNode.children) {
-          parentTreeNode.children.forEach(function (treeChildNode, index) {
-            graph.protocol.processes.nodes.forEach(function (process_) {
-              process_.currrentFsmNode = getParentTreeProcess(treeChildNode, process_.nodeId).currrentFsmNode;
-              researchLevel(treeChildNode, process_, index);  
-            });  
-          });
-        }
+      
+      if(parentTreeNode.children && index === parentTreeNode.children.length - 1) {
+        parentTreeNode.children.forEach(function (treeChildNode, childIndex) {
+          if (treeChildNode.typeId === NODE_TYPE.NORMAL) {
+            researchLevel(treeChildNode, childIndex);
+          }
+        });
       }
     }
 
@@ -339,6 +431,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       graph.protocol = protocol;
       graph.error = false;
       graph.nodesCount = 0;
+      graph.root = null;
 
       if(!graph.protocol) {
         Messenger.post('NO_PROTOCOL_TO_ANALYZE', 'error');
@@ -380,9 +473,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       graph.root.x0 = (1500-60) / 2;
       graph.root.y0 = 0;
       
-      graph.protocol.processes.nodes.forEach(function (process, index) {
-        researchLevel(graph.root, process, index);
-      });
+      researchLevel(graph.root, 0);
 
       update(graph.root);
     }

@@ -2,7 +2,7 @@
 
 module.exports = {
 	db: {
-		uri: process.env.MONGOLAB_URI || 'mongodb://localhost/lpa-dev'
+		uri: process.env.MONGOLAB_URI || 'mongodb://localhost:27017/lpa-dev'
 	},
 	log: {
 		// Can specify one of 'combined', 'common', 'dev', 'short', 'tiny'
