@@ -94,10 +94,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
           count: i + 1
         });
 
-        node_.grid.item.posX += node_.grid.item.step;
+        node_.grid.item.posY += node_.grid.item.step;
         if((i + 1) % node.procNum === 0) {
-          node_.grid.item.posX = node_.grid.item.startX;
-          node_.grid.item.posY += node_.grid.item.step;
+          node_.grid.item.posY = node_.grid.item.startY;
+          node_.grid.item.posX += node_.grid.item.step;
         }
       }
 
@@ -341,13 +341,13 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       return node1.processes.length === node2.processes.length && node1.processes.length === count;
     }
 
-    function isTreeNodeExists(currrentTreeNode, treeNode) {
+    function isTreeNodeExists(currentTreeNode, treeNode) {
       var index = -1;
-      if (compareTreeNodes(currrentTreeNode, treeNode)) {
-        index = graph.root.id;
-      } else if (currrentTreeNode.children && currrentTreeNode.children.length > 0) {
-        for (var i = 0; i < currrentTreeNode.children.length; i++) {
-          if((index = isTreeNodeExists(currrentTreeNode.children[i], treeNode)) > 0) {
+      if (compareTreeNodes(currentTreeNode, treeNode)) {
+        index = currentTreeNode.id;
+      } else if (currentTreeNode.children && currentTreeNode.children.length > 0) {
+        for (var i = 0; i < currentTreeNode.children.length; i++) {
+          if((index = isTreeNodeExists(currentTreeNode.children[i], treeNode)) > 0) {
             break; 
           }
         }
@@ -389,14 +389,19 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         getProcessFsmLinks(process).forEach(function(link) {
   
           process.currrentFsmNode = getParentTreeProcess(parentTreeNode, process.nodeId).currrentFsmNode;
- 
+          
           if (process.currrentFsmNode.nodeId === link.source.nodeId) {
 
             var action = process.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + ((link.processId && '(' + getProcess(link.processId).label + ')') || '');
-            
+        
+            graph.protocol.processes.nodes.forEach(function (process_) {
+              process_.currrentFsmNode = getParentTreeProcess(parentTreeNode, process_.nodeId).currrentFsmNode;
+            });
+
             switch(link.typeId) {
               case 'SEND':
-                if (addToQueue(parentTreeNode, process.nodeId, link.name)) {
+                // damo v queue od procesa na linku (npr. B-ju)
+                if (addToQueue(parentTreeNode, link.processId, link.name)) {
                   process.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action
@@ -409,12 +414,13 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
                 }
                 break;
               case 'RECEIVE':
-                if (removeFromQueue(parentTreeNode, link.processId, link.name)) {
+                // ko smo na B-ju ne sprejmemo od A-ja ampak od B-ja (ker smo prej sem poslali)
+                if (removeFromQueue(parentTreeNode, process.nodeId, link.name)) {
                   process.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action
                   });
-                } else if (getParentTreeProcess(parentTreeNode, link.processId).queue.values.length > 0) {
+                } else if (getParentTreeProcess(parentTreeNode, process.nodeId).queue.values.length > 0) {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.UNDEFINED_RECEIVE,
                     action: action
@@ -432,7 +438,7 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         });
       });
       
-      if(parentTreeNode.children) {
+      if(parentTreeNode.children && ++level < maxlevel) {
         parentTreeNode.children.forEach(function (treeChildNode) {
           if (treeChildNode.typeId === NODE_TYPE.NORMAL) {
             researchLevel(treeChildNode);
@@ -440,7 +446,8 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         });
       }
     }
-
+var level = 0;
+var maxlevel = 30;
     function drawGraph(protocol) {      
       
       graph.protocol = protocol;
