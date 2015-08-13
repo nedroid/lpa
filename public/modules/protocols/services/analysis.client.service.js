@@ -1,19 +1,23 @@
 'use strict';
 
-angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
-  function(d3, Graph, Messenger) {
+angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Messenger',
+  function(d3, $window, Graph, Messenger) {
 
     var 
 
     graph = {
       svg: null,
+      overlay: null,
       tree: null,
+      treeSvg: null,
       protocol: null,
       root: null,
       diagonal: null,
       nodesCount: 0,
       error: false
     },
+
+    element = null,
 
     node = {
       procNum: 0,
@@ -28,6 +32,22 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
       REPEATING: 'REPEATING',
       NORMAL: 'NORMAL'
     };
+
+    function resize() {
+      var 
+      w = angular.element('.container > section').prop('offsetWidth'),
+      h = 2000;
+
+      graph.tree.size([w, h]);
+
+      graph.treeSvg
+        .attr('width', w)
+        .attr('height', h);
+
+      graph.overlay
+        .attr('width', w)
+        .attr('height', h);
+    }
 
     function click(node_) {
       if (node_.children) {
@@ -446,8 +466,10 @@ angular.module('protocols').factory('Analysis', ['d3', 'Graph', 'Messenger',
         });
       }
     }
-var level = 0;
-var maxlevel = 30;
+    
+    var level = 0;
+    var maxlevel = 30;
+
     function drawGraph(protocol) {      
       
       graph.protocol = protocol;
@@ -491,8 +513,10 @@ var maxlevel = 30;
         return;
       }
 
+      resize();
+
       graph.root = createTreeNode();      
-      graph.root.x0 = (1500-60) / 2;
+      graph.root.x0 = graph.treeSvg.attr('width') / 2;
       graph.root.y0 = 0;
       
       researchLevel(graph.root);
@@ -500,16 +524,12 @@ var maxlevel = 30;
       update(graph.root);
     }
 
-    function init(element) {
-      var 
-      margin = {
-        top: 60,
-        right: 0,
-        bottom: 0,
-        left: 0
-      },
-      width =  1024 - margin.right - margin.left,
-      height = 1500 - margin.top - margin.bottom;
+    function init(element_) {
+      var
+      width =  500,
+      height = 1000;
+
+      element = element_;
 
       graph.tree = d3.layout.tree()
         .size([width, height])
@@ -522,12 +542,25 @@ var maxlevel = 30;
         .target(function(d) { return { x: d.target.x, y: d.target.y }; })
         .projection(function(d) { return [d.x, d.y]; });
 
-      graph.svg = d3.select(element).append('svg')
-        .attr('width', '100%')
-        .attr('height', '100%')
-        .attr('id', 'svg')
+      graph.treeSvg = d3.select(element_).append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+      graph.svg = graph.treeSvg
         .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        .attr('transform', 'translate(0, 50)')
+        .call(d3.behavior.zoom().scaleExtent([1, 8]).on('zoom', function () {
+          graph.svg.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
+        }));
+
+      graph.overlay = graph.svg.append('rect')
+        .attr('class', 'overlay')
+        .attr('width', width)
+        .attr('height', height);
+
+      graph.svg = graph.svg.append('g');
+
+      angular.element($window).bind('resize', resize);
     }
 
     return {
