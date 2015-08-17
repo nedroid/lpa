@@ -14,6 +14,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       root: null,
       diagonal: null,
       nodesCount: 0,
+      normalNodesCount: 0,
       error: false
     },
 
@@ -172,7 +173,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
               creatTextNode(d3.select(this), 'NS');
               break;
             case NODE_TYPE.REPEATING:
-              creatTextNode(d3.select(this), d.repeatingNodeId);
+              creatTextNode(d3.select(this), getTreeNode(d.repeatingNodeId).normalNodeId);
               break;
             default:
               createNode(d3.select(this), d);
@@ -181,7 +182,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 .append('svg:text')
                 .attr('x', function () { return (node.procNum * node.size) / -2; })
                 .attr('dy', '-5px')
-                .text(function(d) { return d.id; });
+                .text(function(d) { return getTreeNode(d.id).normalNodeId; });
 
               d3.select(this)
                 .on('click', click);
@@ -301,7 +302,6 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       var isAdded = false;
       
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        processNode.queue.values = getParentTreeProcess(parentTreeNode, processNode.nodeId).queue.values.slice();
         if (processNode.nodeId === processId && processNode.queue.values.length < processNode.queue.length) {
           processNode.queue.values.push(msg);
           isAdded = true;
@@ -315,7 +315,6 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       var isRemoved = false;
 
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        processNode.queue.values = getParentTreeProcess(parentTreeNode, processNode.nodeId).queue.values.slice();
         if (processNode.nodeId === processId) {
           var index = processNode.queue.values.indexOf(msg);
           if (index >= 0) {
@@ -382,7 +381,8 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
         id: ++graph.nodesCount - 1,
         processes: [],
         typeId: options.typeId || NODE_TYPE.NORMAL,
-        action: options.action || ''
+        action: options.action || '',
+        level: options.level
       };
 
       graph.protocol.processes.nodes.forEach(function(process) {
@@ -391,6 +391,10 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
       if (graph.root && (treeNode.repeatingNodeId = isTreeNodeExists(graph.root, treeNode)) >= 0) {
         treeNode.typeId = NODE_TYPE.REPEATING;
+      }
+
+      if (treeNode.typeId === NODE_TYPE.NORMAL) {
+        treeNode.normalNodeId =  ++graph.normalNodesCount - 1;
       }
 
       return treeNode;
@@ -402,7 +406,40 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       parentTreeNode.children.push(createTreeNode(options));
     }
 
-    function researchLevel(parentTreeNode) {
+    
+    function treeNodes(parent, node, childs) {
+      if (!parent) return;
+      node(parent);
+      childs(parent).forEach(function (child) {
+        treeNodes(child, node, childs);
+      });
+    }
+
+    function getTreeNodes(level, typeId) {
+      var nodes = [];
+      treeNodes(graph.root, function(node) {
+        if (node.level === level && node.typeId === typeId) {
+          nodes.push(node);
+        }
+      }, function(d) {
+        return d.children && d.children.length > 0 ? d.children : [];
+      });
+      return nodes;
+    }
+    
+    function getTreeNode(id) {
+      var node;
+      treeNodes(graph.root, function(node_) {
+        if (node_.id === id) {
+          node = node_;
+        }
+      }, function(d) {
+        return d.children && d.children.length > 0 ? d.children : [];
+      });
+      return node;
+    }
+
+    function researchLevel(parentTreeNode, level, isLast) {
 
       graph.protocol.processes.nodes.forEach(function (process) {
 
@@ -415,7 +452,9 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
             var action = process.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + ((link.processId && '(' + getProcess(link.processId).label + ')') || '');
         
             graph.protocol.processes.nodes.forEach(function (process_) {
-              process_.currrentFsmNode = getParentTreeProcess(parentTreeNode, process_.nodeId).currrentFsmNode;
+              var parent  = getParentTreeProcess(parentTreeNode, process_.nodeId);
+              process_.currrentFsmNode = parent.currrentFsmNode;
+              process_.queue.values = parent.queue.values.slice();
             });
 
             switch(link.typeId) {
@@ -424,12 +463,14 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 if (addToQueue(parentTreeNode, link.processId, link.name)) {
                   process.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
-                    action: action
+                    action: action,
+                    level: level
                   });
                 } else {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.QUEUE_FULL,
-                    action: action
+                    action: action,
+                    level: level
                   });
                 }
                 break;
@@ -438,19 +479,22 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 if (removeFromQueue(parentTreeNode, process.nodeId, link.name)) {
                   process.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
-                    action: action
+                    action: action,
+                    level: level
                   });
                 } else if (getParentTreeProcess(parentTreeNode, process.nodeId).queue.values.length > 0) {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.UNDEFINED_RECEIVE,
-                    action: action
+                    action: action,
+                    level: level
                   });
                 }
                 break;
               case 'LOCAL':
                 process.currrentFsmNode = link.target;
                 addChildNode(parentTreeNode, {
-                  action: action
+                  action: action,
+                  level: level
                 });
                 break;
             }
@@ -458,23 +502,22 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
         });
       });
       
-      if(parentTreeNode.children && ++level < maxlevel) {
-        parentTreeNode.children.forEach(function (treeChildNode) {
+      if (isLast) {
+        var children = getTreeNodes(level, NODE_TYPE.NORMAL);
+        children.forEach(function (treeChildNode, index) {
           if (treeChildNode.typeId === NODE_TYPE.NORMAL) {
-            researchLevel(treeChildNode);
+            researchLevel(treeChildNode, level + 1, index === children.length - 1);
           }
         });
       }
     }
     
-    var level = 0;
-    var maxlevel = 30;
-
     function drawGraph(protocol) {      
       
       graph.protocol = protocol;
       graph.error = false;
       graph.nodesCount = 0;
+      graph.normalNodesCount = 0;
       graph.root = null;
 
       if(!graph.protocol) {
@@ -519,7 +562,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       graph.root.x0 = graph.treeSvg.attr('width') / 2;
       graph.root.y0 = 0;
       
-      researchLevel(graph.root);
+      researchLevel(graph.root, 0, true);
 
       update(graph.root);
     }
