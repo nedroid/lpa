@@ -22,7 +22,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     node = {
       procNum: 0,
-      size: 30
+      size: 55
     },
     
     duration = 500,
@@ -148,6 +148,8 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     function update(source) {
 
+      graph.tree.nodeSize([node.size * source.processes.length + 30, 170]);
+      
       var 
       nodes = graph.tree.nodes(graph.root).reverse(),
       links = graph.tree.links(nodes);
@@ -575,10 +577,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       element = element_;
 
       graph.tree = d3.layout.tree()
-        .size([width, height])
-        .separation(function (a, b) {
-          return a.parent === b.parent ? 1 : 2;
-        });
+        .size([width, height]);
 
       graph.diagonal = d3.svg.diagonal()
         .source(function(d) { return { x: d.source.x, y: ( d.source.y + node.procNum * node.size )}; })            
@@ -592,7 +591,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       graph.svg = graph.treeSvg
         .append('g')
         .attr('transform', 'translate(0, 50)')
-        .call(d3.behavior.zoom().scaleExtent([1, 8]).on('zoom', function () {
+        .call(d3.behavior.zoom().scaleExtent([-1, 8]).on('zoom', function () {
           graph.svg.attr('transform', 'translate(' + d3.event.translate + ')scale(' + d3.event.scale + ')');
         }));
 

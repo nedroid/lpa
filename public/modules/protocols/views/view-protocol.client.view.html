@@ -1,5 +1,14 @@
 <section data-ng-controller="ProtocolsController" data-ng-init="view()">
 
+  <div class="pull-right"> 
+    <a target="_blank" class="btn btn-sm btn-default hidden" data-ng-click="exportSvg($event)" download="svg">
+      <i class="fa fa-download"></i>
+    </a>
+    <button class="btn btn-sm btn-default hidden" data-ng-click="print()">
+      <i class="fa fa-print"></i>
+    </button>
+  </div>
+
   <tabset>
     <tab>
       

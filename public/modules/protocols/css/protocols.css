@@ -12,6 +12,17 @@
   -ms-user-select: none;
   user-select: none;  
 }
+.tree-content {
+  cursor: move;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+.tree-content:active { 
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
 .graph-toolbar {
   position: absolute;
   top: 10px;

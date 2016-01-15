@@ -79,6 +79,30 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
 
     };
 
+    $scope.exportSvg = function($event) {
+      var 
+      url,
+      svg = angular.element.find('svg:visible')[0],
+      source = new XMLSerializer().serializeToString(svg);
+
+      if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+        source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+      }
+
+      source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+      
+      url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
+
+      angular.element($event.target).attr('href', url);
+    };
+    
+    $scope.print = function() {
+      window.print();
+    };
+
     $scope.create = function() {
       
       $scope.openSettings();
