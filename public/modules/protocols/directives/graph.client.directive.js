@@ -13,6 +13,11 @@ angular.module('protocols').directive('graph', [
       controller: ['$scope', 'Graph', function($scope, Graph) {
         
         $scope.graph = new Graph.instance();
+        
+        $scope.gravity = true;
+        $scope.toggleGravity = function() {
+          $scope.gravity = !$scope.graph.toggleGravity();
+        };
 
         $scope.nodeType = Graph.NODE_TYPE[$scope.graphData.type];
 

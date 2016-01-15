@@ -7,6 +7,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     graphs = [],
     graphsCount = 0,
 
+    isGravityZero = false,
+
     radius = d3.scale.sqrt().range([0, 6]),
     
     LINKDISTANCE = 250,
@@ -137,7 +139,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       }
       
     }
-    
+
     Graph.prototype.data = function() {
       return {
         title: this.values.title,
@@ -372,7 +374,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           this_.temp = this_.temp || {};
           this_.temp.currentNode
             .select('text')
-            .text(function(d, i) { return d.label || i; }); 
+            .text(function(d, i) { return d.label || i; });
+            if(node && node.type === NODES.TYPE.PROCESS) {
+              updateGraphTitle(node.nodeId, node.label);
+            }
         }
       };
 
@@ -453,6 +458,15 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       this_.build();
     };
     
+    Graph.prototype.toggleGravity = function(element, options) {
+      if(isGravityZero) {
+        this.values.force.gravity(0.1);
+      } else {
+        this.values.force.gravity(0);
+      }
+      return (isGravityZero = !isGravityZero);
+    };
+
     Graph.prototype.init = function(element, options) {
       options = options || {};
       
@@ -496,10 +510,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             tx = tx + 1;
             ty = ty + 1;
           }
-          
+
           drx = drx / (d.linkNum || 1);
           dry = dry / (d.linkNum || 1);
-            
+
           var 
           scx = sx,
           scy = sy + 100,
@@ -512,6 +526,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             tx + ',' + ty;
         });
       },
+      
 
       resize = function () {
         this_.values.force
@@ -600,6 +615,14 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         });
       });
     };
+
+    function updateGraphTitle(parentNodeId, title) {
+      for (var i = 0; i < graphs.length; i++) {
+        if(graphs[i].values && graphs[i].values.parentNodeId === parentNodeId) {
+          graphs[i].values.title = title;
+        }
+      }
+    }
     
     function createNewGraph(options) {
       graphsCount += 2;

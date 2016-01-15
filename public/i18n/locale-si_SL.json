@@ -9,6 +9,7 @@
 	"CLOSE": "Zapri",
 
   "BY": "od",
+  "FORK": "Kloniraj",
   "TAKE_A_LOOK": "Poglej",
 
 	"PROTOCOLS": "Protokoli",
@@ -29,8 +30,6 @@
 	"LINK_TYPE": "Vrsta povezave",
 	"LINK_NAME": "Sporočilo",
 	"LINK_PROCESS": "Proces",
-	"LINK_QUEUE_IN": "Dolžina vhodne vrste",
-	"LINK_QUEUE_OUT": "Dolžina izhodne vrste",
 	"LINK.TYPE.UNKNOWN": "-",
 	"LINK.TYPE.RECEIVE": "Sprejemanje",
 	"LINK.TYPE.SEND": "Pošiljanje",
@@ -39,10 +38,11 @@
 	"NODE_SETTINGS_PROCESSES": "Nastavitve",
 	"NODE_SETTINGS_FINAL_STATE_MACHINE": "Nastavitve procesa",
 	"NODE": "Vozlišče",
+	"NODE_QUEUE_LENGTH": "Dolžina čakalne vrste",
 	"START_STATE": "Začetno stanje",
 
 	"NO_SELECTED_NODE": "Ni izbranega elementa!",
 	"PROTOCOL_HAS_NO_PROCESSES": "Protokol nima nobenega procesa",
 	"NO_PROTOCOL_TO_ANALYZE": "Sistemska napaka: Nedefiniran protokol",
-	"MISSING_START_STATE": "Ni definiranega začetnega stanja."
+	"MISSING_START_STATE": "Ni definiranega začetnega stanja v processu {0}."
 }

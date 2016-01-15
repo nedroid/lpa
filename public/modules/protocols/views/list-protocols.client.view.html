@@ -13,7 +13,14 @@
             <i translate> BY </i>
             <i>{{protocol.user.displayName}}</i>
           </span>
-          <a data-ng-href="#!/protocols/{{protocol._id}}" class="btn btn-sm btn-primary pull-right" translate>TAKE_A_LOOK</a>
+          <div class="pull-right">
+            <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-primary">
+              <i class="fa fa-code-fork"></i> <span class="hidden-xs" translate>FORK</span>
+            </a>
+            <a data-ng-href="#!/protocols/{{protocol._id}}" class="btn btn-sm btn-primary">
+              <i class="fa fa-eye"></i> <span class="hidden-xs" translate>TAKE_A_LOOK</span>
+            </a>
+          </div>          
         </div>
       </div>
     </li>

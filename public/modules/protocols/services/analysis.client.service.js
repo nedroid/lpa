@@ -543,7 +543,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           }
         });
         if(!process.currrentFsmNode) {
-          Messenger.post('MISSING_START_STATE', 'error');
+          Messenger.post('MISSING_START_STATE', 'error', process.label);
           graph.error = true;
         }
         process.queue = {

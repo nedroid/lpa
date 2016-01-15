@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$filter', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
-  function($scope, $stateParams, $location, $filter, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$timeout', '$filter', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
+  function($scope, $stateParams, $location, $timeout, $filter, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
 
     $scope.selected = {
       index: 0
@@ -108,6 +108,33 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
         protocolId: $stateParams.protocolId
       });
       $analytics.eventTrack('lpa.protocols.view', { category: 'protocols', label: 'View' });
+    };
+
+    $scope.edit = function() {
+      
+      Graph.destroy();
+
+      Protocols.get({
+        protocolId: $stateParams.protocolId
+      }, function(protocol) {
+        $scope.protocol = protocol;
+        $scope.graphs = protocol.finalstatemachines || [];
+        $scope.graphs.unshift(protocol.processes);
+        $timeout(function() {
+          $scope.graphs = Graph.instances;  
+        }, 0);
+      });
+      
+      angular.forEach(Graph.LINK_TYPE, function(value, key) {
+        if(key !== 'UNKNOWN') {
+          this.push({
+           id: key,
+           text: value 
+          });
+        }
+      }, $scope.linkTypes = []);
+
+      $analytics.eventTrack('lpa.protocols.edit', { category: 'protocols', label: 'Edit' });
     };
 
     $scope.list = function() {

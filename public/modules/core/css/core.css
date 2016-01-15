@@ -66,6 +66,11 @@ h1.app-name-logo:after {
 .panel-draggable {
   position: fixed;
   z-index: 99999;
+  opacity: 0.9;
+}
+.panel-draggable:hover {
+  opacity: 1;
+  box-shadow: 2px 3px 5px #999;
 }
 .panel-draggable .panel-heading {
   cursor: move;

@@ -5,6 +5,13 @@
   min-height: calc(100vh - 155px);
   margin-bottom: 10px;
 }
+.tree-content svg *,
+.graph-content svg * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;  
+}
 .graph-toolbar {
   position: absolute;
   top: 10px;

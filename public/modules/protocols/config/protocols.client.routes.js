@@ -15,8 +15,8 @@ angular.module('protocols').config(['$stateProvider',
       url: '/protocols/:protocolId',
       templateUrl: 'modules/protocols/views/view-protocol.client.view.html'
     }).
-    state('editProtocol', {
-      url: '/protocols/:protocolId/edit',
+    state('forkProtocol', {
+      url: '/protocols/:protocolId/fork',
       templateUrl: 'modules/protocols/views/edit-protocol.client.view.html'
     });
   }

@@ -4,7 +4,7 @@
     <tab>
       
       <tab-heading>
-        <span translate>PROTOCOL</span>: {{protocol.title}}
+        <i class="fa fa-code-fork"></i> <span translate>PROTOCOL</span>: {{protocol.title}}
       </tab-heading>
 
       <div class="row page-content">
@@ -33,7 +33,7 @@
     <tab select="analyze(protocol)">
 
       <tab-heading>
-        <span translate>ANALYSIS</span>
+        <i class="fa fa-sitemap"></i> <span translate>ANALYSIS</span>
       </tab-heading>
       
       <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}
