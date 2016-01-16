@@ -42,6 +42,9 @@ g.text-tree-node text {
   font: 14px sans-serif;
   pointer-events: none;
 }
+g.node text.process {
+  fill: #A7A7A7;
+}
 .overlay {
   fill: none;
   pointer-events: all;

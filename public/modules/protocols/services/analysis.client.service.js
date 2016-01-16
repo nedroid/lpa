@@ -67,6 +67,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
         .enter()
         .append('svg:g')
         .attr('class', 'text-tree-node')
+        .attr('text-anchor', 'middle')
         .each(function (d) {
 
           d3.select(this)
@@ -77,8 +78,8 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
           d3.select(this)
             .append('svg:text')
-            .attr('dx', '-8px')
-            .attr('dy', '26px')
+            .attr('dx', '2px')
+            .attr('dy', '28px')
             .text(d);    
         });
     }
@@ -101,13 +102,16 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
         if (Math.floor(i / node.procNum) === i % node.procNum) {
           node_.value = node_.processes[i % node.procNum].currrentFsmNode.label;
+          node_.process = node_.processes[i % node.procNum].label;
         } else {
           node_.value = node_.processes[i % node.procNum].queue.values.join(', ');
+          node_.process = null;
         }
 
         node_.grid.data.push({ 
           time: i, 
           value: node_.value,
+          process: node_.process,
           width: node_.grid.item.size,
           height: node_.grid.item.size,
           x: node_.grid.item.posX,
@@ -143,6 +147,15 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
             .attr('dy', '20px')
             .attr('dx', '12px')
             .text(function(d) { return d.value || ''; });
+
+          d3.select(this)
+            .append('svg:text')
+            .attr('class', 'process')
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
+            .attr('dy', '28px')
+            .attr('dx', '2px')
+            .text(function(d) { return d.process || ''; });
         });
     }
 
@@ -342,6 +355,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
     function transformProcessNode(process) {
       return {
         nodeId: process.nodeId,
+        label: process.label,
         currrentFsmNode: transformFsmNode(process.currrentFsmNode),
         queue: {
           values: process.queue.values.slice(),
@@ -566,6 +580,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           length: process.queueLength,
           values: []
         };
+
       });
 
       if(graph.error) {
