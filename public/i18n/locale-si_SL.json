@@ -24,6 +24,13 @@
 	"ANALYSIS": "Analiza",
 	"PROCESS_LIST": "Seznam procesov",
 
+	"IMPORT_FILE_SUCCESS": "Uvoz datoteke {0} uspešen",
+	"IMPORT_FILE_ERROR": "Uvoz datoteke {0} neuspešen! Potrebno je naložiti datoteko tipa json!",
+	"IMPORT_FILE_PARSE_SUCCESS": "Uspešeno branje {0} datoteke.",
+  "IMPORT_FILE_PARSE_ERROR": "Neuspešno branje datoteke! Napaka/e: {0}",
+  "IMPORT_ERR_FSM": "V naloženi datoteki manjkajo končni avtomati.",
+  "IMPORT_ERR_PROCESSES": "V naloženi datoteki manjkajo seznam procesov",
+
 	"LINK_SETTINGS": "Nastavitve povezave procesa",
 	"LINK_SOURCE": "Izvorno vozlišče",
 	"LINK_TARGET": "Ciljno vozlišče",

@@ -78,6 +78,82 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       });
 
     };
+    
+    $scope.import = function(fileInput) {   
+      var 
+      file = fileInput.files && fileInput.files.length > 0 && fileInput.files[0],
+      callback = function(protocol) {
+        var errors = 0;
+        
+        if (protocol.finalstatemachines === undefined) {
+          Messenger.post('IMPORT_ERR_FSM', 'error');
+          errors += 1;
+        }
+
+        if (protocol.processes === undefined) {
+          Messenger.post('IMPORT_ERR_PROCESSES', 'error');
+          errors += 1;
+        }
+
+        if (errors > 0) {
+          return false;
+        }
+        
+        Graph.destroy();
+        
+        $scope.protocol = protocol;
+        $scope.graphs = protocol.finalstatemachines || [];
+        $scope.graphs.unshift(protocol.processes);
+
+        $scope.$apply();
+
+        $timeout(function() {
+          $scope.graphs = Graph.instances;  
+        }, 0);
+
+        return true;
+      };
+
+      if (file && file.type === 'application/json') {
+        Messenger.post('IMPORT_FILE_SUCCESS', 'success', file.name);
+        var readFile = new FileReader();
+        readFile.onload = function(e) { 
+          try {
+            if (callback(JSON.parse(e.target.result))) {
+              Messenger.post('IMPORT_FILE_PARSE_SUCCESS', 'success', file.name);
+            }
+          } catch (error) {
+            Messenger.post('IMPORT_FILE_PARSE_ERROR', 'error', error.toLocaleString());
+          }
+        };
+        readFile.readAsText(file);
+      } else {
+        Messenger.post('IMPORT_FILE_ERROR', 'error', file && file.name);
+      }
+
+      angular.element(fileInput).val('');
+    };
+
+    $scope.export = function($event) {
+      var protocol = {
+        title: $scope.protocol.title,
+        processes: {},
+        finalstatemachines: [],
+      };
+
+      Graph.instances.forEach(function(instance) {
+        var graph = instance.data();
+        if (graph.type === Graph.TYPE.PROCESSES) {
+          protocol.processes = graph;
+        } else {
+          protocol.finalstatemachines.push(graph);  
+        }
+      });
+
+      angular.element($event.target)
+        .attr('download', protocol.title + '.json')
+        .attr('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(protocol)));
+    };
 
     $scope.exportSvg = function($event) {
       var 
@@ -96,7 +172,9 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       
       url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
 
-      angular.element($event.target).attr('href', url);
+      angular.element($event.target)
+        .attr('download', $scope.protocol.title + '.json')
+        .attr('href', url);
     };
     
     $scope.print = function() {

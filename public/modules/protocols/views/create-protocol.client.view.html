@@ -1,6 +1,9 @@
 <section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="create()">
   
   <div class="pull-right"> 
+    <span class="btn btn-sm btn-default btn-file hidden">
+      <i class="fa fa-upload"></i> <input type="file" onchange="angular.element(this).scope().import(this)"/>
+    </span>
     <button class="btn btn-sm btn-default" data-ng-click="openSettings()">
       <i class="fa fa-cogs"></i>
     </button>
