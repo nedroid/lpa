@@ -22,7 +22,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     node = {
       procNum: 0,
-      size: 55
+      size: 30
     },
     
     duration = 500,
@@ -148,7 +148,10 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     function update(source) {
 
-      graph.tree.nodeSize([node.size * source.processes.length + 30, 170]);
+      graph.tree.nodeSize([
+        node.size * source.processes.length + 30,
+        node.size * source.processes.length + 130
+      ]);
       
       var 
       nodes = graph.tree.nodes(graph.root).reverse(),
@@ -436,7 +439,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           node = node_;
         }
       }, function(d) {
-        return d.children && d.children.length > 0 ? d.children : [];
+        return d.children && d.children.length > 0 ? d.children : (d._children && d._children.length > 0 ? d._children : []);
       });
       return node;
     }
@@ -513,8 +516,19 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
         });
       }
     }
-    
-    function drawGraph(protocol) {      
+
+    function collapseAllNodes() {
+      graph.svg.selectAll('g.node').each(function(d, i) {
+        var 
+        data = d3.select(this).data(),
+        onClickFunc = d3.select(this).on('click');
+        if (onClickFunc && d3.select(this).data()[0].children) {
+          onClickFunc.apply(this, [d, i]);  
+        }
+      });  
+    }
+
+    function drawGraph(protocol) {
       
       graph.protocol = protocol;
       graph.error = false;
@@ -607,7 +621,8 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     return {
       init: init,
-      drawTree: drawGraph
+      drawTree: drawGraph,
+      collapseAllNodes: collapseAllNodes
     };
   }
 ]);

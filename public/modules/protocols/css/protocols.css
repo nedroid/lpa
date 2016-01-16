@@ -71,3 +71,19 @@ section > div > ul.nav-pills {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+.tab-pane {
+  position: relative;
+}
+.tab-pane.full-screen {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: #FFF;
+}
+.tab-pane.full-screen svg {
+  width: 100%;
+  height: 100%;
+}

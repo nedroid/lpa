@@ -1,6 +1,9 @@
 <section data-ng-controller="ProtocolsController" data-ng-init="view()">
 
   <div class="pull-right"> 
+    <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-default">
+      <i class="fa fa-code-fork"></i>
+    </a>
     <a target="_blank" class="btn btn-sm btn-default hidden" data-ng-click="exportSvg($event)" download="svg">
       <i class="fa fa-download"></i>
     </a>

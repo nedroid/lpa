@@ -19,7 +19,19 @@ angular.module('protocols').directive('analysis', function() {
           $scope.analysis.drawTree($scope.protocol);
         }
       });
-      
+
+      $scope.isFullScreen = false;
+      $scope.fullScreen = function ($event) {
+        angular.element($event.target)
+          .parents('.tab-pane.active')
+          .toggleClass('full-screen');
+        $scope.isFullScreen = !$scope.isFullScreen;
+      };
+        
+      $scope.print = function () {
+        window.print();
+      };
+
     }],
     link: function($scope, elm, attrs) {
       $scope.analysis.init(elm[0].querySelector('.tree-content'));

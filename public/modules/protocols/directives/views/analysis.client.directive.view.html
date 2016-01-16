@@ -1,1 +1,14 @@
 <div class="tree-content"></div>
+
+<div class="graph-toolbar">
+  <button type="button" class="btn btn-primary" data-ng-click="analysis.collapseAllNodes()">
+    <span class="small-stack">
+      <i class="fa fa-circle-o"></i>
+      <i class="fa fa-compress"></i>
+    </span>
+  </button>
+  <button type="button" class="btn btn-primary" data-ng-click="fullScreen($event)">
+    <i class="fa fa-arrows-alt" data-ng-hide="isFullScreen"></i>
+    <i class="fa fa-compress" data-ng-show="isFullScreen"></i>
+  </button>
+</div>
