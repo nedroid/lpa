@@ -98,9 +98,10 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
         if (errors > 0) {
           return false;
         }
-        
+        $scope.graphs = [];
         Graph.destroy();
-        
+        $scope.$apply();
+
         $scope.protocol = protocol;
         $scope.graphs = protocol.finalstatemachines || [];
         $scope.graphs.unshift(protocol.processes);
@@ -156,10 +157,38 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
     };
 
     $scope.exportSvg = function($event) {
-      var 
-      url,
-      svg = angular.element.find('svg:visible')[0],
-      source = new XMLSerializer().serializeToString(svg);
+      var url, source,
+      svg = angular.element.find('svg:visible');
+
+      svg = angular.element(svg).clone();
+
+      // za analizo
+      if(angular.element(svg).find('rect.overlay').remove().length > 0) {
+        var minX = 0, maxX = 0, maxY = 0;
+        angular.element(svg).find('g.node').each(function (i, node) { 
+          var tmp = angular.element(node).attr('transform').split(/[^\-0-9.]{1,}/);
+          tmp[1] = parseFloat(tmp[1]);
+          tmp[2] = parseFloat(tmp[2]);
+          if (tmp[1] < minX) {
+            minX = tmp[1];
+          }
+          if (tmp[1] > maxX) {
+            maxX = tmp[1];
+          }
+          if (tmp[2] > maxY) {
+            maxY = tmp[2];
+          }
+        });
+        angular.element(svg)
+          .attr('width', maxX - minX + 300)
+          .attr('height', maxY + 200)
+          .children('g')
+          .attr('transform', 'translate(' + (minX * -1 + 150) + ', 50)')
+          .children('g')
+          .attr('transform', '');
+      }
+
+      source = new XMLSerializer().serializeToString(svg[0]);
 
       if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
         source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
@@ -219,6 +248,8 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
     };
 
     $scope.view = function() {
+      Graph.destroy();
+
       $scope.protocol = Protocols.get({
         protocolId: $stateParams.protocolId
       });

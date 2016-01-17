@@ -612,7 +612,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     function init(element_) {
       var
-      width =  500,
+      width =  5000,
       height = 1000;
 
       element = element_;
