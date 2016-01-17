@@ -72,12 +72,17 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
           d3.select(this)
             .append('svg:circle')
+            .attr('stroke', '#333')
+            .attr('fill', '#fff')
+            .attr('stroke-width', '2px')
             .attr('r', 22)
             .attr('cx', '2px')
             .attr('cy', '22px');
 
           d3.select(this)
             .append('svg:text')
+            .attr('font-family', 'sans-serif')
+            .attr('font-size', '14px')
             .attr('dx', '2px')
             .attr('dy', '28px')
             .text(d);    
@@ -130,11 +135,14 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
         .data(node_.grid.data)
         .enter()
         .append('svg:g')
+        .attr('text-anchor', 'middle')
         .each(function (d) {
           
           d3.select(this)
             .append('svg:rect')
             .attr('class', 'cell')
+            .attr('fill', '#fff')
+            .attr('stroke', '#333')
             .attr('x', function(d) { return d.x; })
             .attr('y', function(d) { return d.y; })
             .attr('width', function(d) { return d.width; })
@@ -142,15 +150,16 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
           d3.select(this)
             .append('svg:text')           
-            .attr('x', function(d) { return d.x; })
+            .attr('x', function(d) { return d.x + d.width / 2; })
             .attr('y', function(d) { return d.y; })
             .attr('dy', '20px')
-            .attr('dx', '12px')
             .text(function(d) { return d.value || ''; });
 
           d3.select(this)
             .append('svg:text')
             .attr('class', 'process')
+            .attr('text-anchor', 'start')
+            .attr('fill', '#A7A7A7')
             .attr('x', function(d) { return d.x; })
             .attr('y', function(d) { return d.y; })
             .attr('dy', '28px')
@@ -236,6 +245,9 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
       link.enter().insert('path', 'g')
         .attr('class', 'tree-link')
+        .attr('fill', 'none')
+        .attr('stroke', '#333')
+        .attr('stroke-width', '2px')
         .attr('d', function(d) {
           var o = {
             x: source.x0, 
@@ -626,6 +638,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
       graph.overlay = graph.svg.append('rect')
         .attr('class', 'overlay')
+        .attr('fill', 'none')
         .attr('width', width)
         .attr('height', height);
 

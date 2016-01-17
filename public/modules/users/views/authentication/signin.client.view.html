@@ -2,31 +2,34 @@
 	<div class="col-md-offset-3 col-md-6">
 		<div class="panel panel-default panel-singleton">
 			<div class="panel-heading">
-	    	<h3 class="panel-title" translate>SIGN_IN</h3>
+	    	<h3 class="panel-title" translate>SIGN_IN_TITLE</h3>
 	  	</div>
 			<div class="panel-body">
 				<form data-ng-submit="signin()" class="signin" autocomplete="off">
 					<fieldset>
 						<div class="form-group">
-							<label for="username">Username</label>
-							<input type="text" id="username" name="username" class="form-control" data-ng-model="credentials.username" placeholder="Username">
+							<label for="username" translate>USERNAME</label>
+							<input type="text" id="username" name="username" class="form-control" data-ng-model="credentials.username" placeholder="{{ 'USERNAME' | translate}}">
 						</div>
 						<div class="form-group">
-							<label for="password">Password</label>
-							<input type="password" id="password" name="password" class="form-control" data-ng-model="credentials.password" placeholder="Password">
+							<label for="password" translate>PASSWORD</label>
+							<input type="password" id="password" name="password" class="form-control" data-ng-model="credentials.password" placeholder="{{ 'PASSWORD' | translate }}">
 						</div>
 						<div class="text-center form-group">
-							<button type="submit" class="btn btn-primary">Sign in</button>&nbsp; or&nbsp;
+							<button type="submit" class="btn btn-primary">
+								<i class="fa fa-sign-in"></i>
+								<span translate>SIGNIN</span>
+							</button>&nbsp; or&nbsp;
 							<a href="/auth/google" class="btn btn-danger">
 								<i class="fa fa-google-plus"></i>
-								Sign in with google
+								<span translate>SIGN_IN_GOOGLE</span>
 							</a>
 						</div>
-						<div class="forgot-password">
-							<a href="/#!/password/forgot">Forgot your password?</a>
+						<div class="forgot-password hidden">
+							<a href="/#!/password/forgot" translate>FORGOT_PASSWORD</a>
 						</div>
 						<div data-ng-show="error" class="text-center text-danger">
-							<strong data-ng-bind="error"></strong>
+							<strong translate>{{ error }}</strong>
 						</div>
 					</fieldset>
 				</form>

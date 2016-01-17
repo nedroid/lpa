@@ -23,6 +23,10 @@ var ProtocolSchema = new Schema({
     type: Schema.ObjectId,
     ref: 'User'
   },
+  deleted: {
+    type: Boolean,
+    default: false
+  },
   created: {
     type: Date,
     default: Date.now

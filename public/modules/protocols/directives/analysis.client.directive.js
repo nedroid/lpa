@@ -27,10 +27,6 @@ angular.module('protocols').directive('analysis', function() {
           .toggleClass('full-screen');
         $scope.isFullScreen = !$scope.isFullScreen;
       };
-        
-      $scope.print = function () {
-        window.print();
-      };
 
     }],
     link: function($scope, elm, attrs) {

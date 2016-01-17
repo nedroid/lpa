@@ -182,7 +182,7 @@ exports.read = function(req, res) {
 };
 
 exports.update = function(req, res) {
-  var protocol = req.protocol;
+  var protocol = req.lpaProtocol;
 
   protocol = _.extend(protocol, req.body);
 
@@ -198,9 +198,11 @@ exports.update = function(req, res) {
 };
 
 exports.delete = function(req, res) {
-  var protocol = req.protocol;
+  var protocol = req.lpaProtocol;
 
-  protocol.remove(function(err) {
+  protocol.deleted = true;
+
+  protocol.save(function(err) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -212,7 +214,10 @@ exports.delete = function(req, res) {
 };
 
 exports.list = function(req, res) {
-  ProtocolModel.find().sort('-created')
+  ProtocolModel
+  .find()
+  .where('deleted').equals(false)//.equals(undefined)
+  .sort('-created')
   //.deepPopulate('processes.nodes processes.links user')
   .deepPopulate('processes.nodes processes.links.source processes.links.target user')
   .exec(function(err, protocols) {
@@ -237,7 +242,7 @@ exports.protocolByID = function(req, res, next, id) {
   ProtocolModel.findById(id)
     //.deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links')
     //.deepPopulate('processes.nodes processes.links finalstatemachines.nodes finalstatemachines.links.source finalstatemachines.links.target')
-    .deepPopulate('processes.nodes processes.links.source processes.links.target finalstatemachines.nodes finalstatemachines.links.source finalstatemachines.links.target')
+    .deepPopulate('processes.nodes processes.links.source processes.links.target finalstatemachines.nodes finalstatemachines.links.source finalstatemachines.links.target user.id')
     .exec(function(err, protocol) {
       if (err) return next(err);
       if (!protocol) {
@@ -251,9 +256,9 @@ exports.protocolByID = function(req, res, next, id) {
 };
 
 exports.hasAuthorization = function(req, res, next) {
-  if (req.protocol.user.id !== req.user.id) {
+  if (req.lpaProtocol.user.id !== req.user.id) {
     return res.status(403).send({
-      message: 'User is not authorized'
+      message: 'SERVER_ERROR_403'
     });
   }
   next();

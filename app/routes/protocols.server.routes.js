@@ -12,6 +12,7 @@ module.exports = function(app) {
   app.route('/protocols/:protocolId')
     .get(protocols.read)
     .put(users.requiresLogin, protocols.hasAuthorization, protocols.update)
+    //.delete(users.requiresLogin, protocols.delete);
     .delete(users.requiresLogin, protocols.hasAuthorization, protocols.delete);
 
   app.param('protocolId', protocols.protocolByID);

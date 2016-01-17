@@ -14,11 +14,14 @@
             <i>{{protocol.user.displayName}}</i>
           </span>
           <div class="pull-right">
+            <button data-ng-click="delete(protocol._id)" class="btn btn-sm btn-primary">
+              <i class="fa fa-trash"></i>
+            </button>
             <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-primary">
-              <i class="fa fa-code-fork"></i> <span class="hidden-xs" translate>FORK</span>
+              <i class="fa fa-code-fork"></i> <span class="hidden" translate>FORK</span>
             </a>
             <a data-ng-href="#!/protocols/{{protocol._id}}" class="btn btn-sm btn-primary">
-              <i class="fa fa-eye"></i> <span class="hidden-xs" translate>TAKE_A_LOOK</span>
+              <i class="fa fa-eye"></i> <span class="hidden" translate>TAKE_A_LOOK</span>
             </a>
           </div>          
         </div>

@@ -2,7 +2,7 @@
   <div class="col-md-offset-3 col-md-6">
     <div class="panel panel-default panel-singleton">
       <div class="panel-heading">
-        <h3 class="panel-title" translate>EDIT_USER</h3>
+        <h3 class="panel-title" translate>USER_SETTINGS</h3>
       </div>
       <div class="panel-body">
         <p>{{user.displayName}}</p>
@@ -18,10 +18,13 @@
               </li>
             </ul>
             <div class="text-center form-group">
-              <button type="submit" class="btn btn-large btn-primary">SUBMIT</button>
+              <button type="submit" class="btn btn-large btn-primary">
+                <i class="fa fa-save"></i>
+                <span translate>SAVE</span>
+              </button>
             </div>
             <div data-ng-show="success" class="text-center text-success">
-              <strong>User updated successfully</strong>
+              <strong translate>USER_UPDATED_SUCCESSFULY</strong>
             </div>
             <div data-ng-show="error" class="text-center text-danger">
               <strong data-ng-bind="error"></strong>

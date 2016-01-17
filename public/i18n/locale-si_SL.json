@@ -5,6 +5,30 @@
 	"SIGNIN": "Prijava",
 	"SIGNUP": "Registracija",
 
+	"SIGN_IN_TITLE": "Za nadaljevanje se prijavite",
+	"USERNAME": "Uporabniško ime",
+	"PASSWORD": "Geslo",
+	"SIGN_IN_GOOGLE": "Prijav z google računom",
+	"FORGOT_PASSWORD": "Ste pozabili geslo?",
+	"UNKOWN_USER_OR_INVALID_PWD": "Neznan uporabnik ali napačno geslo",
+
+	"EDIT_PROFILE": "Urejanje profila",
+	"CHANGE_PASSWORD": "Sprememba gesla",
+	"USER_LIST": "Seznam uporabnikov",
+	"CREATE_NEW_USER": "Ustvari uporabnika",
+	"SIGNOUT": "Odjava",
+	"USER_SETTINGS": "Nastavitve uporabnika",
+	"FIRST_NAME": "Ime",
+	"LAST_NAME": "Priimek",
+	"EMAIL": "Elektronska pošta",
+	"PROFILE_SAVED_SUCCESSFULY": "Shranjevanje profila uspešno",
+	"USER_UPDATED_SUCCESSFULY": "Posodobitev uporabnika uspešna",
+
+	"CURRENT_PASSWORD": "Trenutno geslo",
+	"NEW_PASSWORD": "Novo geslo",
+	"VERIFY_PASSWORD": "Preverjanje novega gesla",
+	"PASSWORD_CHANGED_SUCCESSFULY": "Sprememba gesla uspešna",
+
 	"SAVE": "Shrani",
 	"CLOSE": "Zapri",
 
@@ -51,5 +75,7 @@
 	"NO_SELECTED_NODE": "Ni izbranega elementa!",
 	"PROTOCOL_HAS_NO_PROCESSES": "Protokol nima nobenega procesa",
 	"NO_PROTOCOL_TO_ANALYZE": "Sistemska napaka: Nedefiniran protokol",
-	"MISSING_START_STATE": "Ni definiranega začetnega stanja v processu {0}."
+	"MISSING_START_STATE": "Ni definiranega začetnega stanja v processu {0}.",
+
+	"SERVER_ERROR_403": "Nimate pravic!"
 }

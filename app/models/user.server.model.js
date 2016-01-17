@@ -91,7 +91,11 @@ var UserSchema = new Schema({
 	},
 	resetPasswordExpires: {
 		type: Date
-	}
+	},
+	deleted: {
+    type: Boolean,
+    default: false
+  }
 });
 
 /**

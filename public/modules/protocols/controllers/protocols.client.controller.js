@@ -173,12 +173,8 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(source);
 
       angular.element($event.target)
-        .attr('download', $scope.protocol.title + '.json')
+        .attr('download', $scope.protocol.title + '.svg')
         .attr('href', url);
-    };
-    
-    $scope.print = function() {
-      window.print();
     };
 
     $scope.create = function() {
@@ -203,6 +199,23 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       });
 
       $analytics.eventTrack('lpa.protocols.create', { category: 'protocols', label: 'Create' });
+    };
+
+    $scope.delete = function(protocolId) {
+      $scope.protocol = Protocols.delete({
+        protocolId: protocolId || $stateParams.protocolId
+      }, function (protocol) {
+        var index;
+        $scope.protocols.forEach(function (protocol_, index_) {
+          if (protocol._id === protocol_._id) {
+            index = index_;
+          }
+        });
+        $scope.protocols.splice(index, 1);
+      }, function (error) {
+        Messenger.post(error.data.message, 'error');
+      });
+      $analytics.eventTrack('lpa.protocols.view', { category: 'protocols', label: 'Delete' });
     };
 
     $scope.view = function() {

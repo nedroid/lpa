@@ -1,51 +1,18 @@
 g.node circle {
-  fill: #ddd;
-  stroke: #000;
-  stroke-width: 1.5px;
   cursor: pointer;
 }
 g.node text {
-  font: 10px sans-serif;
   pointer-events: none;
-}
-g.link path {
-  fill: none;
-  stroke: #666;
-  stroke-width: 3px;
 }
 g.link text {
-  font-size: 15px;
-  fill: #333;
   cursor: pointer;
-}
-g.node circle.start {
-  stroke: #F00;
-}
-
-/* TREE GRAPH */
-path.tree-link {
-  fill: none;
-  stroke: #333;
-  stroke-width: 2px;
 }
 rect.cell {
-  fill: #fff; 
-  stroke: #333;
   cursor: pointer;
 }
-g.text-tree-node circle {
-  stroke: #333;
-  fill: #fff;
-  stroke-width: 2px;
-}
 g.text-tree-node text {
-  font: 14px sans-serif;
   pointer-events: none;
 }
-g.node text.process {
-  fill: #A7A7A7;
-}
 .overlay {
-  fill: none;
   pointer-events: all;
 }

@@ -42,21 +42,36 @@
 				</a>
 				<ul class="dropdown-menu">
 					<li>
-						<a href="/#!/settings/profile">Edit Profile</a>
+						<a href="/#!/settings/profile">
+							<i class="fa fa-user"></i>
+							<span translate>EDIT_PROFILE</span>
+						</a>
 					</li>
 					<li data-ng-show="authentication.user.provider === 'local'">
-						<a href="/#!/settings/password">Change Password</a>
+						<a href="/#!/settings/password">
+							<i class="fa fa-key"></i>
+							<span translate>CHANGE_PASSWORD</span>
+						</a>
 					</li>
 					<li class="divider" data-ng-show="authentication.hasAuthorization(['admin'])"></li>
 					<li data-ng-show="authentication.hasAuthorization(['admin'])">
-						<a href="/#!/users">User list</a>
+						<a href="/#!/users">
+							<i class="fa fa-users"></i>
+							<span translate>USER_LIST</span>
+						</a>
 					</li>
 					<li>
-						<a href="/#!/users/create" data-ng-show="authentication.hasAuthorization(['admin'])">Create new user</a>
+						<a href="/#!/users/create" data-ng-show="authentication.hasAuthorization(['admin'])">
+							<i class="fa fa-user-plus"></i>
+							<span translate>CREATE_NEW_USER</span>
+						</a>
 					</li>
 					<li class="divider"></li>
 					<li>
-						<a href="/auth/signout">Signout</a>
+						<a href="/auth/signout">
+							<i class="fa fa-sign-out"></i>
+							<span translate>SIGNOUT</span>
+						</a>
 					</li>
 				</ul>
 			</li>

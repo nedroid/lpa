@@ -80,7 +80,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     function label(i, type) {
       var label_ = '';
       if(angular.isNumber(i)) {
-        angular.forEach(i.toString().split(''), function(value) {
+        angular.forEach(i.toString().replace('-', '').split(''), function(value) {
           value = parseInt(value);
           if(type === GRAPH.TYPE.PROCESSES) {
             label_ += PROC_LABEL_TRANSLATOR[value % PROC_LABEL_TRANSLATOR.length];
@@ -161,12 +161,18 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             .style('stroke-width', function(d) { return NODES.STROKE_WIDTH[d.type]; })
             .style('stroke', function(d) { return NODES.STROKE[d.type]; });
         }
-        
-        this_.values.svg.selected.node = d3.select(this)
-         .select('circle')
-         .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.SELECTED; })
-         .style('stroke', function(d) { return NODES.STROKE.SELECTED; });
-         //.style('filter', 'url(#selected-element)');
+
+        if (!this_.values.svg.selected.node || 
+          this_.values.svg.selected.node.data()[0].nodeId !== d3.select(this).data()[0].nodeId) {
+          
+          this_.values.svg.selected.node = d3.select(this)
+            .select('circle')
+            .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.SELECTED; })
+            .style('stroke', function(d) { return NODES.STROKE.SELECTED; });
+            //.style('filter', 'url(#selected-element)');
+        } else {
+          this_.values.svg.selected.node = null;
+        }
       },
 
       nodeDblClicked = function(node) {
@@ -230,6 +236,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           .append('svg:text')
           .attr('dy', '.35em')
           .attr('text-anchor', 'middle')
+          .attr('font-family', 'sans-serif')
+          .attr('font-size', '10px')
           .text(function(d, i) { return d.label || i; }); 
       
         d3.select(this)
@@ -254,6 +262,9 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         d3.select(this)
           .append('svg:path')
           .attr('class', 'link')
+          .attr('fill', 'none')
+          .attr('stroke', '#666')
+          .attr('stroke-width', '3px')
           .attr('id', function(d) { return 'link-' + d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); })
           .attr('marker-end', this_.values.type === GRAPH.TYPE.PROCESSES ? '' : 'url(#end)');
 
@@ -263,6 +274,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           .attr('dx', LINKDISTANCE / 2)
           .attr('dy', '-10')
           .attr('text-anchor', 'middle')
+          .attr('font-size', '15px')
+          .attr('fill', '#333')
           .append('svg:textPath')
             .on('dblclick', labelClick)
             .attr('xlink:href', function(d) { return '#link-' + d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); })
@@ -333,10 +346,10 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       
       this_.temp = this_.temp || {};
 
-      if(!this_.values.svg.selected.node && !options.targetNode) {
+      if(!this_.values.svg.selected.node && !options.targetNode && !this_.temp.sourceNode) {
         Messenger.post('Select source node and click add link.', 'info');
         return;
-      } else if(this_.temp.sourceNode || options.sourceNode) {
+      } else if(this_.temp.sourceNode && this_.values.svg.selected.node || options.sourceNode) {
         if(options.targetNode) {
           addLink(options.sourceNode, options.targetNode, options);
         } else {
@@ -345,7 +358,9 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         }
         this_.temp.sourceNode = null;
       } else {
-        this_.temp.sourceNode = this_.values.svg.selected.node;
+        if (this_.values.svg.selected.node) {
+          this_.temp.sourceNode = this_.values.svg.selected.node;
+        }
         Messenger.post('Select target node and click add link.', 'info');
       }
     };

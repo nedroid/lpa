@@ -15,19 +15,20 @@ module.exports = function() {
 		},
 		function(username, password, done) {
 			User.findOne({
-				username: username
+				username: username,
+				deleted: false
 			}, function(err, user) {
 				if (err) {
 					return done(err);
 				}
 				if (!user) {
 					return done(null, false, {
-						message: 'Unknown user or invalid password'
+						message: 'UNKOWN_USER_OR_INVALID_PWD'
 					});
 				}
 				if (!user.authenticate(password)) {
 					return done(null, false, {
-						message: 'Unknown user or invalid password'
+						message: 'UNKOWN_USER_OR_INVALID_PWD'
 					});
 				}
 

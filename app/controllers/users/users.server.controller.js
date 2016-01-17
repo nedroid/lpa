@@ -38,6 +38,7 @@ exports.read = function(req, res) {
 exports.list = function(req, res) {
   User
     .find()
+    .where('deleted').equals(false)
     .select('displayName username')
     .sort('displayName')
     .exec(function(err, users) {
@@ -86,12 +87,15 @@ exports.delete = function(req, res) {
       message: 'You can not delete yourself!'
     });
   } else {
-    user.remove(function(err) {
+    user.deleted = true;
+    user.save(function(err, user) {
       if (err) {
         return res.status(400).send({
           message: errorHandler.getErrorMessage(err)
         });
       } else {
+        user.password = undefined;
+        user.salt = undefined;
         res.json(user);
       }
     });
@@ -107,6 +111,7 @@ exports.lpaUserByID = function(req, res, next, id) {
   }
 
   User.findById(id)
+    .where('deleted').equals(false)
     .select('displayName username roles')
     .exec(function(err, user) {
       if (err) return next(err);

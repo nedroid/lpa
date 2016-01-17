@@ -5,11 +5,15 @@
 	"SIGNIN": "Sign in",
 	"SIGNUP": "Sign up",
 
+  "UNKOWN_USER_OR_INVALID_PWD": "Unknown user or invalid password",
+
   "BY": "by",
   "FORK": "Fork",
   "TAKE_A_LOOK": "Take a look",
 	
 	"PROTOCOLS": "Protocols",
 	"PROTOCOLS_NEW": "New Protocol",
-	"PROTOCOLS_LIST": "List Protocols"
+	"PROTOCOLS_LIST": "List Protocols",
+
+  "SERVER_ERROR_403": "User is not authorized!" 
 }
