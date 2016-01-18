@@ -14,10 +14,10 @@
             <i>{{protocol.user.displayName}}</i>
           </span>
           <div class="pull-right">
-            <button data-ng-click="delete(protocol._id)" class="btn btn-sm btn-primary">
+            <button data-ng-click="delete(protocol._id)" class="btn btn-sm btn-primary" data-ng-show="authentication.user && authentication.checkUser(protocol.user)">
               <i class="fa fa-trash"></i>
             </button>
-            <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-primary">
+            <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-primary" data-ng-show="authentication.user">
               <i class="fa fa-code-fork"></i> <span class="hidden" translate>FORK</span>
             </a>
             <a data-ng-href="#!/protocols/{{protocol._id}}" class="btn btn-sm btn-primary">

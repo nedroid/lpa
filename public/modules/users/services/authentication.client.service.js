@@ -31,6 +31,9 @@ angular.module('users').factory('Authentication', ['$window', function($window) 
       });
       
       return hasAuthorization;
+    },
+    checkUser: function(user) {
+      return user && user._id === this.user._id;
     }
 	};
 	

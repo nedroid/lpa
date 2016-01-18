@@ -1,7 +1,9 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$timeout', '$filter', '$modal', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
-  function($scope, $stateParams, $location, $timeout, $filter, $modal, Protocols, Graph, Actions, Messenger, $analytics) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$timeout', '$filter', '$modal', 'Authentication', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
+  function($scope, $stateParams, $location, $timeout, $filter, $modal, Authentication, Protocols, Graph, Actions, Messenger, $analytics) {
+
+    $scope.authentication = Authentication;
 
     $scope.selected = {
       index: 0

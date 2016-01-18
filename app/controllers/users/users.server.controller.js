@@ -39,6 +39,7 @@ exports.list = function(req, res) {
   User
     .find()
     .where('deleted').equals(false)
+    .where('provider').ne('google')
     .select('displayName username')
     .sort('displayName')
     .exec(function(err, users) {
