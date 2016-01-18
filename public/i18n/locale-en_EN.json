@@ -1,19 +1,81 @@
 {
-	"LANGUAGE": "EN",
-	"APP_DESCRIPTION": "Logical Protocol Analyzer",
-	"OFFLINE_APP_DOWNLOAD": "Download offline mode",
-	"SIGNIN": "Sign in",
-	"SIGNUP": "Sign up",
+  "LANGUAGE": "EN",
+  "APP_DESCRIPTION": "Logical Protocol Analyzer",
+  "OFFLINE_APP_DOWNLOAD": "Download offline mode",
+  "SIGNIN": "Sign in",
+  "SIGNUP": "Sign up",
 
-  "UNKOWN_USER_OR_INVALID_PWD": "Unknown user or invalid password",
+  "SIGN_IN_TITLE": "Sign in to continue",
+  "USERNAME": "Username",
+  "PASSWORD": "Password",
+  "SIGN_IN_GOOGLE": "Sign in with Google",
+  "FORGOT_PASSWORD": "Forgot your password?",
+  "UNKOWN_USER_OR_INVALID_PWD": "Unknown or invalid user",
+
+  "EDIT_PROFILE": "Edit profile",
+  "CHANGE_PASSWORD": "Change password",
+  "USER_LIST": "Users",
+  "CREATE_NEW_USER": "Create new user",
+  "SIGNOUT": "Sign out",
+  "USER_SETTINGS": "User settings",
+  "FIRST_NAME": "First name",
+  "LAST_NAME": "Last name",
+  "EMAIL": "Email",
+  "PROFILE_SAVED_SUCCESSFULY": "User profile saved successfuly",
+  "USER_UPDATED_SUCCESSFULY": "User updated",
+
+  "CURRENT_PASSWORD": "Current password",
+  "NEW_PASSWORD": "New password",
+  "VERIFY_PASSWORD": "Verify password",
+  "PASSWORD_CHANGED_SUCCESSFULY": "Password changed successfuly",
+
+  "SAVE": "Save",
+  "CLOSE": "Close",
 
   "BY": "by",
   "FORK": "Fork",
   "TAKE_A_LOOK": "Take a look",
-	
-	"PROTOCOLS": "Protocols",
-	"PROTOCOLS_NEW": "New Protocol",
-	"PROTOCOLS_LIST": "List Protocols",
 
-  "SERVER_ERROR_403": "User is not authorized!" 
+  "PROTOCOLS": "Protocols",
+  "PROTOCOLS_NEW": "New protocol",
+  "PROTOCOLS_LIST": "List protocols",
+
+  "PROTOCOL_SETTINGS": "Settings",
+  "PROTOCOL_TITLE": "Protocol title",
+  "PROTOCOL_TITLE_ERR": "Enter protocol name, it has to be at least 4 characters long!",
+  "NO_PROTOCOL_TITLE": "You have not defined protocol name, so you can not save or analyze it!",
+  "PROTOCOL": "Protocol",
+  "ANALYSIS": "Analysis",
+  "PROCESS_LIST": "List processes",
+
+  "IMPORT_FILE_SUCCESS": "File {0} uploaded successfuly",
+  "IMPORT_FILE_ERROR": "File {0} upload failed! You have to upload json file!",
+  "IMPORT_FILE_PARSE_SUCCESS": "File {0} parsed successfuly.",
+  "IMPORT_FILE_PARSE_ERROR": "Parsing failed! Error/s: {0}",
+  "IMPORT_ERR_FSM": "There is no final state machines in uploaded file.",
+  "IMPORT_ERR_PROCESSES": "There is no list of processes in uploaded file.",
+
+  "LINK_SETTINGS": "Link settings of process",
+  "LINK_SOURCE": "Source node",
+  "LINK_TARGET": "Target node",
+  "LINK_TYPE": "Link type",
+  "LINK_NAME": "Message",
+  "LINK_PROCESS": "Process",
+  "LINK.TYPE.UNKNOWN": "-",
+  "LINK.TYPE.RECEIVE": "Receive",
+  "LINK.TYPE.SEND": "Send",
+  "LINK.TYPE.LOCAL": "Local",
+
+  "NODE_SETTINGS_PROCESSES": "Node settings",
+  "NODE_SETTINGS_FINAL_STATE_MACHINE": "FSM settings",
+  "NODE": "Node",
+  "NODE_QUEUE_LENGTH": "Queue length",
+  "START_STATE": "Start state",
+
+  "NO_SELECTED_NODE": " There is no selected element!",
+  "PROTOCOL_HAS_NO_PROCESSES": "Protocol has no process",
+  "NO_PROTOCOL_TO_ANALYZE": "System error: Protocol not defined",
+  "MISSING_START_STATE": "There is no start state defined in process {0}.",
+
+  "SERVER_ERROR_403": "User is not authorized!"
 }
