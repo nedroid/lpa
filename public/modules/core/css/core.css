@@ -39,8 +39,32 @@ body.ng-cloak,
 .page-header {
   margin: 20px 0 15px;
 }
+header * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;  
+}
 .navbar-nav a {
 	cursor: pointer;
+}
+.navbar .nav.navbar-nav li.active a {
+  background-color: inherit;
+}
+.navbar .nav.navbar-nav li div.line {
+  display: none;
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #E24343;
+}
+@media (min-width: 768px) {
+  .navbar .nav.navbar-nav li:hover div.line,
+  .navbar .nav.navbar-nav li.active div.line {
+    display: block;
+  }
 }
 h1.app-name-logo {
 	margin-left: -15px;
@@ -81,6 +105,7 @@ h1.app-name-logo:after {
 .panel-draggable.transparent:hover {
   opacity: 1;
 }
+
 /* SMALL PANEL DRAGGALBE */
 .panel-sm,
 .panel-sm input, 
@@ -111,6 +136,7 @@ h1.app-name-logo:after {
 .panel-sm h3 {
   font-size: 12px;
 }
+
 /* MEDIUM PANEL DRAGGALBE */
 .panel-md,
 .panel-md input,
