@@ -1,7 +1,12 @@
 {
 	"LANGUAGE": "SI",
+
 	"APP_DESCRIPTION": "Logični Protokolni Analizator",
+	"APP_INFO": "Aplikacija služi analiziranju prtokolov. Lahko se jo uporablja tudi v offline modu.",
 	"OFFLINE_APP_DOWNLOAD": "Prenesi offline mode",
+	"APP_AUTHOR": "O avtorju",
+	"APP_AUTHOR_INFO": "Aplikacija je nastala v okviru diplomske naloge.",
+
 	"SIGNIN": "Prijava",
 	"SIGNUP": "Registracija",
 

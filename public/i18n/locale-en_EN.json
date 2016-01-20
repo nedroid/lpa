@@ -1,7 +1,12 @@
 {
   "LANGUAGE": "EN",
+
   "APP_DESCRIPTION": "Logical Protocol Analyzer",
+  "APP_INFO": "TODO",
   "OFFLINE_APP_DOWNLOAD": "Download offline mode",
+  "APP_AUTHOR": "About author",
+  "APP_AUTHOR_INFO": "TODO",
+
   "SIGNIN": "Sign in",
   "SIGNUP": "Sign up",
 

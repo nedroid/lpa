@@ -93,6 +93,55 @@ h1.app-name-logo:after {
 	color: #FF0000;
 	color: rgba(255,0,0,0.5);
 }
+
+/* HOME */
+section.home {
+  margin-bottom: 50px; 
+}
+section.home .carousel-inner > .item,
+section.home .carousel {
+  height: 350px;
+}
+section.home .carousel-inner .item img {
+  position:relative;
+  top:50%;
+  transform: translateY(-50%);
+}
+section.home .carousel-indicators li {
+  border: 1px solid #333;
+  background-color: #C7C7C7;
+}
+section.home .carousel-indicators li.active {
+  background-color: #EEE;
+}
+section.home .carousel-caption {
+  color: #C7C7C7;
+  top: 0;
+  bottom: auto;
+}
+section.home a.carousel-control {
+  cursor: pointer;
+}
+section.home .left.carousel-control {
+  border-bottom-left-radius: 6px;
+}
+section.home .right.carousel-control {
+  border-bottom-right-radius: 6px;
+}
+section.home .panel hr {
+  max-width: 50px;
+  border-color: #E24343;
+  border-width: 3px;
+}
+section.home .panel  {
+  margin-top: 20px;
+}
+section.home .panel p {
+  font-size: 18px;
+  line-height: 2;
+}
+
+/* PANELS */
 .panel {
   padding-left: 0;
   padding-right: 0;

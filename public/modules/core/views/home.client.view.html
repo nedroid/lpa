@@ -1,21 +1,36 @@
-<section data-ng-controller="HomeController">
-	<div class="jumbotron text-center">
-		<div class="row">
-			<div class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
-				<img alt="MEAN.JS" class="img-responsive text-center" src="modules/core/img/brand/lpa-logo.png" />
-			</div>
-		</div>
-		<div class="row">
-			<h3 translate>APP_DESCRIPTION</h3>
-		</div>
-		<div class="row" data-ng-show="nevidn">
-			<p>
-				<a class="btn btn-primary btn-lg" href="http://meanjs.org" target="_blank" translate>OFFLINE_APP_DOWNLOAD</a>
-			</p>
-		</div>
-	</div>
+<section class="home" data-ng-controller="HomeController" data-ng-init="init()">
+
 	<div>
-		<h2>About</h2>
-		<p>In progress...</p>
+    <carousel interval="5000">
+      <slide ng-repeat="slide in slides" active="slide.active" index="slide.id">
+        <img ng-src="{{slide.image}}" style="margin:auto;">
+        <div class="carousel-caption">
+          <h3 date-ng-show="slide.text">{{slide.text}}</h3>
+        </div>
+      </slide>
+    </carousel>
+  </div>
+	
+	<div class="panel text-center">
+		<h3 translate>APP_DESCRIPTION</h3>
+		<hr/>
+		<p translate>
+			APP_INFO
+		</p>
+		<p>
+			<a class="btn btn-primary btn-lg" href="#">
+				<i class="fa fa-download"></i>
+				<span translate>OFFLINE_APP_DOWNLOAD</span>
+			</a>
+		</p>
 	</div>
+
+	<div class="panel text-center">
+		<h3 translate>APP_AUTHOR</h3>
+		<hr/>
+		<p translate>
+			APP_AUTHOR_INFO
+		</p>
+	</div>
+
 </section>
