@@ -135,6 +135,7 @@ section.home .panel hr {
 }
 section.home .panel  {
   margin-top: 20px;
+  box-shadow: none;
 }
 section.home .panel p {
   font-size: 18px;
