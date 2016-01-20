@@ -51,12 +51,20 @@ header * {
 .navbar .nav.navbar-nav li.active a {
   background-color: inherit;
 }
+@keyframes showline {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
 .navbar .nav.navbar-nav li div.line {
   display: none;
   position: absolute;
   bottom: -1px;
-  left: 0;
-  right: 0;
+  left: 1px;
+  right: 1px;
   height: 3px;
   background-color: #E24343;
 }
@@ -64,6 +72,8 @@ header * {
   .navbar .nav.navbar-nav li:hover div.line,
   .navbar .nav.navbar-nav li.active div.line {
     display: block;
+    animation-name: showline;
+    animation-duration: 0.2s;
   }
 }
 h1.app-name-logo {

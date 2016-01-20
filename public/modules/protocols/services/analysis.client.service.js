@@ -109,7 +109,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           node_.value = node_.processes[i % node.procNum].currrentFsmNode.label;
           node_.process = node_.processes[i % node.procNum].label;
         } else {
-          node_.value = node_.processes[i % node.procNum].queue.values.join(', ');
+          node_.value = node_.processes[i % node.procNum].queue[node_.processes[Math.floor(i / node.procNum)]._id].values.join(', ');
           node_.process = null;
         }
 
@@ -328,12 +328,11 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       return process_;
     }
 
-    function addToQueue(parentTreeNode, processId, msg) {
+    function addToQueue(parentTreeNode, targetProcessId, sourceProcess, msg) {
       var isAdded = false;
-      
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        if (processNode.nodeId === processId && processNode.queue.values.length < processNode.queue.length) {
-          processNode.queue.values.push(msg);
+        if (processNode.nodeId === targetProcessId && processNode.queue[sourceProcess._id].values.length < processNode.queue[sourceProcess._id].length) {
+          processNode.queue[sourceProcess._id].values.push(msg);
           isAdded = true;
         }
       });
@@ -341,14 +340,14 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       return isAdded;
     }
 
-    function removeFromQueue(parentTreeNode, processId, msg) {
+    function removeFromQueue(parentTreeNode, sourceProcess, targetProcess, msg) {
       var isRemoved = false;
 
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        if (processNode.nodeId === processId) {
-          var index = processNode.queue.values.indexOf(msg);
+        if (processNode.nodeId === sourceProcess.nodeId) {
+          var index = processNode.queue[targetProcess._id].values.indexOf(msg);
           if (index >= 0) {
-            processNode.queue.values.splice(index, 1);
+            processNode.queue[targetProcess._id].values.splice(index, 1);
             isRemoved = true;
           }
         }
@@ -365,15 +364,22 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
     }
     
     function transformProcessNode(process) {
-      return {
+      var tmp_  = {
         nodeId: process.nodeId,
         label: process.label,
+        _id: process._id,
         currrentFsmNode: transformFsmNode(process.currrentFsmNode),
-        queue: {
-          values: process.queue.values.slice(),
-          length: process.queue.length
-        }
+        queue: {}
       };
+      graph.protocol.processes.nodes.forEach(function (process_) {
+        if (process !== process_) {
+          tmp_.queue[process_._id] = {
+            values: process.queue[process_._id].values.slice(),
+            length: process.queue[process_._id].length
+          };
+        }
+      });
+      return tmp_;
     }
 
     function compareTreeNodes(node1, node2) {
@@ -381,6 +387,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       if (node1.typeId === NODE_TYPE.NORMAL && node2.typeId === NODE_TYPE.NORMAL) {
         node1.processes.forEach(function(p1) {
           node2.processes.forEach(function(p2) {
+            //debugger;
             if (p1.nodeId === p2.nodeId && angular.equals(p1.queue, p2.queue) &&
               p1.currrentFsmNode.nodeId === p2.currrentFsmNode.nodeId) {
               count++;
@@ -472,27 +479,39 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     function researchLevel(parentTreeNode, level, isLast) {
 
-      graph.protocol.processes.nodes.forEach(function (process) {
+      graph.protocol.processes.nodes.forEach(function (sourceProcess) {
 
-        getProcessFsmLinks(process).forEach(function(link) {
+        getProcessFsmLinks(sourceProcess).forEach(function(link) {
   
-          process.currrentFsmNode = getParentTreeProcess(parentTreeNode, process.nodeId).currrentFsmNode;
+          sourceProcess.currrentFsmNode = getParentTreeProcess(parentTreeNode, sourceProcess.nodeId).currrentFsmNode;
           
-          if (process.currrentFsmNode.nodeId === link.source.nodeId) {
+          if (sourceProcess.currrentFsmNode.nodeId === link.source.nodeId) {
 
-            var action = process.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + ((link.processId && '(' + getProcess(link.processId).label + ')') || '');
-        
+            var 
+            targetProcess = link.processId && getProcess(link.processId) || {},
+            action = sourceProcess.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + (link.processId && ('(' + targetProcess.label + ')') || '');
+          
+
+            // do i need that ???
             graph.protocol.processes.nodes.forEach(function (process_) {
               var parent  = getParentTreeProcess(parentTreeNode, process_.nodeId);
               process_.currrentFsmNode = parent.currrentFsmNode;
-              process_.queue.values = parent.queue.values.slice();
+              process_.queue = {};
+              graph.protocol.processes.nodes.forEach(function (process2_) {
+                if (process_ !== process2_) {
+                  process_.queue[process2_._id] = {
+                    values: parent.queue[process2_._id].values.slice(),
+                    length: parent.queue[process2_._id].length
+                  };
+                }
+              });
             });
 
             switch(link.typeId) {
               case 'SEND':
                 // damo v queue od procesa na linku (npr. B-ju)
-                if (addToQueue(parentTreeNode, link.processId, link.name)) {
-                  process.currrentFsmNode = link.target;
+                if (addToQueue(parentTreeNode, link.processId, sourceProcess, link.name)) {
+                  sourceProcess.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action,
                     level: level
@@ -507,13 +526,13 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 break;
               case 'RECEIVE':
                 // ko smo na B-ju ne sprejmemo od A-ja ampak od B-ja (ker smo prej sem poslali)
-                if (removeFromQueue(parentTreeNode, process.nodeId, link.name)) {
-                  process.currrentFsmNode = link.target;
+                if (removeFromQueue(parentTreeNode, sourceProcess, targetProcess, link.name)) {
+                  sourceProcess.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action,
                     level: level
                   });
-                } else if (getParentTreeProcess(parentTreeNode, process.nodeId).queue.values.length > 0) {
+                } else if (getParentTreeProcess(parentTreeNode, sourceProcess.nodeId).queue[targetProcess._id].values.length > 0) {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.UNDEFINED_RECEIVE,
                     action: action,
@@ -522,7 +541,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 }
                 break;
               case 'LOCAL':
-                process.currrentFsmNode = link.target;
+                sourceProcess.currrentFsmNode = link.target;
                 addChildNode(parentTreeNode, {
                   action: action,
                   level: level
@@ -588,11 +607,18 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           Messenger.post('MISSING_START_STATE', 'error', process.label);
           graph.error = true;
         }
-        process.queue = {
-          length: process.queueLength,
-          values: []
-        };
 
+        // processes.length - 1 == number of queues
+        process.queue = {};
+        graph.protocol.processes.nodes.forEach(function(process_) {
+          if(process !== process_) {
+            process.queue[process_._id] = {
+              length: process.queueLength,
+              values: []
+            };  
+          }
+        });          
+        
       });
 
       if(graph.error) {
