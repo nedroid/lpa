@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').factory('Graph', ['$filter', '$timeout', 'd3', 'Messenger', 'Actions',
-  function($filter, $timeout, d3, Messenger, Actions) {
+angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Actions',
+  function($filter, d3, Messenger, Actions) {
 
     var 
     graphs = [],
@@ -176,7 +176,7 @@ angular.module('protocols').factory('Graph', ['$filter', '$timeout', 'd3', 'Mess
         }
       },
 
-      nodeDblClicked = function(node) {        
+      nodeDblClicked = function(node) {
         Actions.showNodeSettings({
           style: {
             top: 80,
