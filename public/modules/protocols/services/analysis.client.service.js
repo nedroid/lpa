@@ -387,7 +387,6 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       if (node1.typeId === NODE_TYPE.NORMAL && node2.typeId === NODE_TYPE.NORMAL) {
         node1.processes.forEach(function(p1) {
           node2.processes.forEach(function(p2) {
-            //debugger;
             if (p1.nodeId === p2.nodeId && angular.equals(p1.queue, p2.queue) &&
               p1.currrentFsmNode.nodeId === p2.currrentFsmNode.nodeId) {
               count++;
@@ -490,9 +489,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
             var 
             targetProcess = link.processId && getProcess(link.processId) || {},
             action = sourceProcess.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + (link.processId && ('(' + targetProcess.label + ')') || '');
-          
 
-            // do i need that ???
             graph.protocol.processes.nodes.forEach(function (process_) {
               var parent  = getParentTreeProcess(parentTreeNode, process_.nodeId);
               process_.currrentFsmNode = parent.currrentFsmNode;

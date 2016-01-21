@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Actions',
-  function($filter, d3, Messenger, Actions) {
+angular.module('protocols').factory('Graph', ['$filter', '$timeout', 'd3', 'Messenger', 'Actions',
+  function($filter, $timeout, d3, Messenger, Actions) {
 
     var 
     graphs = [],
@@ -153,7 +153,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     Graph.prototype.build = function() {
 
       var this_ = this,
-      
+
       nodeClicked = function(node) {
         if (this_.values.svg.selected.node) {
           this_.values.svg.selected.node
@@ -170,16 +170,15 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.SELECTED; })
             .style('stroke', function(d) { return NODES.STROKE.SELECTED; });
             //.style('filter', 'url(#selected-element)');
+
         } else {
           this_.values.svg.selected.node = null;
         }
       },
 
-      nodeDblClicked = function(node) {
+      nodeDblClicked = function(node) {        
         Actions.showNodeSettings({
           style: {
-            //top: node.y + node.size + SETTINGS_MARGIN,
-            //left: node.x + node.size + SETTINGS_MARGIN
             top: 80,
             left:100
           },
@@ -266,7 +265,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           .attr('stroke', '#666')
           .attr('stroke-width', '3px')
           .attr('id', function(d) { return 'link-' + d.source.nodeId + '-' + d.target.nodeId + '-' + (d.linkNum || 1); })
-          .attr('marker-end', this_.values.type === GRAPH.TYPE.PROCESSES ? '' : 'url(#end)');
+          .attr('marker-end', this_.values.type === GRAPH.TYPE.PROCESSES ? '' : 'url(#link-arrow)');
 
         d3.select(this)
           .append('svg:text')
@@ -387,12 +386,14 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         queueLength: options.queueLength || 1,
         rebuild: function() {
           this_.temp = this_.temp || {};
+
           this_.temp.currentNode
             .select('text')
             .text(function(d, i) { return d.label || i; });
-            if(node && node.type === NODES.TYPE.PROCESS) {
-              updateGraphTitle(node.nodeId, node.label);
-            }
+
+          if(node && node.type === NODES.TYPE.PROCESS) {
+            updateGraphTitle(node.nodeId, node.label);
+          }
         }
       };
 
@@ -411,7 +412,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
             this_.values.data.start.node.type = NODES.TYPE.ACCEPT_STATE;
             this_.values.data.start.node.isStart = false;
           }
-          this_.values.svg.start.node = this_.values.svg.selected.node;
+
+          this_.values.svg.start.node = this_.temp.currentNode.select('circle');
           this_.values.data.start.node = node;
           
           if(!node.isStart) {
@@ -548,7 +550,18 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           .size([element.offsetWidth, element.offsetHeight])
           .resume();
       };
-      
+
+      defs.append('svg:marker')
+        .attr('id', 'link-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 22)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('svg:path')
+        .attr('d', 'M0,-5L10,0L0,5');
+
       filter = defs.append('svg:filter')
         .attr('id', 'selected-element');
       filter.append('svg:feGaussianBlur')
@@ -563,19 +576,6 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         .attr('in', 'offsetBlur');
       feMerge.append('svg:feMergeNode')
         .attr('in', 'SourceGraphic');
-
-      defs.selectAll('marker')
-        .data(['end'])
-        .enter().append('svg:marker')
-        .attr('id', String)
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 22)
-        .attr('refY', 0)
-        .attr('markerWidth', 6)
-        .attr('markerHeight', 6)
-        .attr('orient', 'auto')
-        .append('svg:path')
-        .attr('d', 'M0,-5L10,0L0,5');
 
       this_.values.data.nodes = [];
       this_.values.data.links = [];

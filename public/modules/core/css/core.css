@@ -244,6 +244,9 @@ section.home .panel p {
 .btn-checkbox.active i:before {
   content: "\f14a";
 }
+.btn-checkbox[disabled] {
+  opacity: 0.7;
+}
 
 /* BUTTON FILE */
 .btn-file {
