@@ -68,7 +68,7 @@
         <div class="form-group" data-ng-show="nodeSettings.node.setStartState">
           <label for="node-is-start" class="col-sm-3 control-label" translate>START_STATE</label>
           <div class="col-sm-9">
-            <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()">
+            <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()" data-ng-disabled="nodeSettings.node.isStart">
               <i class="fa"></i>
             </button>
           </div>

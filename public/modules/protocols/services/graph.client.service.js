@@ -203,8 +203,6 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
       labelClick = function (link) {
         Actions.showLinkSettings({
           style: {
-            //top: this.offsetTop + SETTINGS_MARGIN,
-            //left: this.offsetLeft + SETTINGS_MARGIN
             top: 80,
             left:10
           },
@@ -560,7 +558,8 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
         .attr('markerHeight', 6)
         .attr('orient', 'auto')
         .append('svg:path')
-        .attr('d', 'M0,-5L10,0L0,5');
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#000');
 
       filter = defs.append('svg:filter')
         .attr('id', 'selected-element');
