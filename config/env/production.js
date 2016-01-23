@@ -29,6 +29,7 @@ module.exports = {
 			],
 			js: [
 				'public/lib/jquery/dist/jquery.min.js',
+				'public/lib/jquery-ui/jquery-ui.min.js',
 				'public/lib/angular/angular.min.js',
 				'public/lib/angular-resource/angular-resource.min.js',
 				'public/lib/angular-animate/angular-animate.min.js',
@@ -44,6 +45,7 @@ module.exports = {
 				'public/lib/angular-ui-uploader/dist/uploader.min.js',
 				'public/lib/angular-ui-utils/index.js',
 				//'public/lib/angular-ui-utils/ui-utils.min.js',
+				'public/lib/angular-ui-sortable/sortable.min.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.min.js',
 				'public/lib/angular-translate/angular-translate.min.js',
 				'public/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js',

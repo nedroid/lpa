@@ -1,0 +1,36 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="cancel()">
+    <i class="fa fa-times"></i>
+  </button>
+  <h3 class="modal-title"><i class="fa fa-cog"></i> <span translate>ANALYSIS_SETTINGS</span></h3>
+</div>
+
+<div class="modal-body">
+  <form ng-submit="analyze()" name="protocolForm" novalidate autocomplete="off">
+    <fieldset>
+      <div class="form-group">
+        <label for="process-priority" translate>PROCESS_PRIORITY</label>
+        <button type="button" class="btn-checkbox text-primary pull-right" data-ng-model="protocol.isPriority" uib-btn-checkbox>
+          <i class="fa"></i>
+        </button>
+        <ul ui-sortable data-ng-model="processes" class="processes-priority" data-ng-show="processes && processes.length > 0" data-ng-class="{disabled : !protocol.isPriority}">
+          <li ng-repeat="process in processes" class="process">
+            <span>{{ process.text }}</span>
+          </li>
+        </ul>
+        <div data-ng-hide="processes && processes.length > 0" class="processes-priority text-center text-danger" data-ng-class="{disabled : !protocol.isPriority}">
+          <strong translate>PROCESS_PRIORITY_NO_PROCESS</strong>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-warning" ng-click="cancel()">
+    <i class="fa fa-times"></i> <span translate>CANCEL</span>
+  </button>
+  <button class="btn btn-primary" ng-click="analyze()">
+    <i class="fa fa-play"></i> <span translate>START_ANALYZE</span>
+  </button>
+</div>

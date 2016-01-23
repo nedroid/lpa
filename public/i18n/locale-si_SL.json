@@ -36,6 +36,8 @@
 
 	"SAVE": "Shrani",
 	"CLOSE": "Zapri",
+	"CANCEL": "Prekliči",
+	"START_ANALYZE": "Analiziraj",
 
   "BY": "od",
   "FORK": "Kloniraj",
@@ -52,6 +54,9 @@
 	"PROTOCOL": "Protokol",
 	"ANALYSIS": "Analiza",
 	"PROCESS_LIST": "Seznam procesov",
+	"ANALYSIS_SETTINGS": "Nastavitve",
+	"PROCESS_PRIORITY": "Prioritete procesov",
+	"PROCESS_PRIORITY_NO_PROCESS": "Ni procesov",
 
 	"IMPORT_FILE_SUCCESS": "Uvoz datoteke {0} uspešen",
 	"IMPORT_FILE_ERROR": "Uvoz datoteke {0} neuspešen! Potrebno je naložiti datoteko tipa json!",

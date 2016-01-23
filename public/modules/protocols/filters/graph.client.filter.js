@@ -24,6 +24,51 @@ angular.module('protocols')
   };
 })
 
+.filter('graphProcesses', function() {
+  return function(items) {
+    var out = [];
+
+    if (angular.isArray(items)) {
+      items.forEach(function(item) {
+        if (item.values && item.values.type === 'PROCESSES') {
+          item.values.data.nodes.forEach(function (node, index) {
+            out.push({
+              nodeId: node.nodeId,
+              text: node.label,
+              value: index
+            });
+          });
+        }
+      });
+    } else {
+      out = items;
+    }
+
+    return out;
+  };
+})
+.filter('processes', function() {
+  return function(items) {
+    var out = [];
+
+    if (angular.isArray(items)) {
+      items.forEach(function(item, index) {
+        if (item && item.type === 'PROCESS') {
+          out.push({
+            nodeId: item.nodeId,
+            text: item.label,
+            value: index
+          });
+        }
+      });
+    } else {
+      out = items;
+    }
+
+    return out;
+  };
+})
+
 .filter('processName', ['Graph', function(Graph) {
   return function(item) {
     var name;

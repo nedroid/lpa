@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$timeout', '$filter', '$modal', 'Authentication', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
-  function($scope, $stateParams, $location, $timeout, $filter, $modal, Authentication, Protocols, Graph, Actions, Messenger, $analytics) {
+angular.module('protocols').controller('ProtocolsController', ['$scope', '$stateParams', '$location', '$timeout', '$filter', '$uibModal', 'Authentication', 'Protocols', 'Graph', 'Actions', 'Messenger', '$analytics',
+  function($scope, $stateParams, $location, $timeout, $filter, $uibModal, Authentication, Protocols, Graph, Actions, Messenger, $analytics) {
 
     $scope.authentication = Authentication;
 
@@ -31,7 +31,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
     
     $scope.openSettings = function() {
 
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         templateUrl: 'modules/protocols/views/modals/create-protocol.client.modal.html',
         controller: 'ProtocolsModalController',
         resolve: {
@@ -290,6 +290,27 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       $analytics.eventTrack('lpa.protocols.list', { category: 'protocols', label: 'List' });
     };
 
+
+    $scope.openAnalysisSetting = function(protocol) {
+      var modalInstance = $uibModal.open({
+        templateUrl: 'modules/protocols/views/modals/analysis-settings.client.modal.html',
+        controller: 'AnalysisModalController',
+        resolve: {
+          protocol: function () {
+            return protocol;
+          },
+          graphs: function () {
+            return $scope.graphs;
+          }
+        }
+      });
+      
+      modalInstance.result.then(function (protocol) {
+        $scope.analyze(protocol);
+      });
+    };
+    
+    $scope.analysisTabActive = false;
     $scope.analyze = function(protocol) {
       $scope.alerts = [];
       
@@ -319,6 +340,7 @@ angular.module('protocols').controller('ProtocolsController', ['$scope', '$state
       $scope.p = protocol;
 
       $scope.startAnalyze = ($scope.startAnalyze && ++$scope.startAnalyze) || 1;
+      $scope.analysisTabActive = true;    
     };
 
   }

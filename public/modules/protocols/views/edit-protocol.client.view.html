@@ -1,6 +1,12 @@
 <section class="protocols" data-ng-controller="ProtocolsController" data-ng-init="edit()">
   
   <div class="pull-right">
+    <button type="button" class="btn btn-sm btn-default" data-ng-click="openAnalysisSetting(protocol)">
+      <span class="small-stack">
+        <i class="fa fa-sitemap"></i>
+        <i class="fa fa-cog"></i>
+      </span>
+    </button>
     <button class="btn btn-sm btn-default" data-ng-click="openSettings()">
       <i class="fa fa-cogs"></i>
     </button>
@@ -12,12 +18,12 @@
     </button>
   </div>
 
-  <tabset>
+  <uib-tabset>
     
-    <tab>  
-      <tab-heading>
+    <uib-tab>  
+      <uib-tab-heading>
         <i class="fa fa-code-fork"></i> <span translate>PROTOCOL</span>: {{protocol.title}}
-      </tab-heading>
+      </uib-tab-heading>
       <div class="row page-content">
         
         <div class="col-md-2 hidden-xs">
@@ -35,21 +41,21 @@
         </div>
 
       </div>
-    </tab>
+    </uib-tab>
   
-    <tab select="analyze(protocol)">
-      <tab-heading>
+    <uib-tab select="analyze(protocol)" active="analysisTabActive">
+      <uib-tab-heading>
         <i class="fa fa-sitemap"></i> <span translate>ANALYSIS</span>
-      </tab-heading>
+      </uib-tab-heading>
       
       <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}
       </alert>
       
       <analysis protocol="protocol" analyze="startAnalyze"></analysis>
 
-    </tab>
+    </uib-tab>
 
-  </tabset>
+  </uib-tabset>
 
   <div class="panel panel-default panel-draggable" data-ng-style="nodeSettings.style" data-ng-show="nodeSettings.visible">
     <div class="panel-heading">
@@ -68,7 +74,7 @@
         <div class="form-group" data-ng-show="nodeSettings.node.setStartState">
           <label for="node-is-start" class="col-sm-3 control-label" translate>START_STATE</label>
           <div class="col-sm-9">
-            <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" btn-checkbox data-ng-click="nodeSettings.node.setStartState()" data-ng-disabled="nodeSettings.node.isStart">
+            <button type="button" class="btn-checkbox text-primary" data-ng-model="nodeSettings.node.isStart" uib-btn-checkbox data-ng-click="nodeSettings.node.setStartState()" data-ng-disabled="nodeSettings.node.isStart">
               <i class="fa"></i>
             </button>
           </div>

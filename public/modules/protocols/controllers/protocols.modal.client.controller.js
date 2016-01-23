@@ -1,12 +1,12 @@
 'use strict';
 
-angular.module('protocols').controller('ProtocolsModalController', function($scope, $modalInstance, protocol) {
+angular.module('protocols').controller('ProtocolsModalController', function($scope, $uibModalInstance, protocol) {
 
   $scope.protocol = protocol;
   
   $scope.save = function () {
     if($scope.protocol && $scope.protocol.title && $scope.protocol.title.length > 3) {
-      $modalInstance.close($scope.protocol);
+      $uibModalInstance.close($scope.protocol);
     } else {
       $scope.error = 'PROTOCOL_TITLE_ERR';
     }
@@ -14,7 +14,7 @@ angular.module('protocols').controller('ProtocolsModalController', function($sco
   };
 
   $scope.close = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 
 });

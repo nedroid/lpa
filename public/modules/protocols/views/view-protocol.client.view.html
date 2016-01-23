@@ -1,6 +1,12 @@
 <section data-ng-controller="ProtocolsController" data-ng-init="view()">
 
   <div class="pull-right"> 
+    <button type="button" class="btn btn-sm btn-default" data-ng-click="openAnalysisSetting(protocol)">
+      <span class="small-stack">
+        <i class="fa fa-sitemap"></i>
+        <i class="fa fa-cog"></i>
+      </span>
+    </button>
     <a data-ng-href="#!/protocols/{{protocol._id}}/fork" class="btn btn-sm btn-default">
       <i class="fa fa-code-fork"></i>
     </a>
@@ -12,12 +18,12 @@
     </a>
   </div>
 
-  <tabset>
-    <tab>
+  <uib-tabset>
+    <uib-tab>
       
-      <tab-heading>
+      <uib-tab-heading>
         <i class="fa fa-code-fork"></i> <span translate>PROTOCOL</span>: {{protocol.title}}
-      </tab-heading>
+      </uib-tab-heading>
 
       <div class="row page-content">
         <div class="col-md-2 hidden-xs">
@@ -40,21 +46,21 @@
         </div>
       </div>
 
-    </tab>
+    </uib-tab>
     
-    <tab select="analyze(protocol)">
+    <uib-tab select="analyze(protocol)" active="analysisTabActive">
 
-      <tab-heading>
+      <uib-tab-heading>
         <i class="fa fa-sitemap"></i> <span translate>ANALYSIS</span>
-      </tab-heading>
+      </uib-tab-heading>
       
       <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}
       </alert>
       
       <analysis protocol="protocol" analyze="startAnalyze"></analysis>
       
-    </tab>
+    </uib-tab>
 
-  </tabset>
+  </uib-tabset>
   
 </section>

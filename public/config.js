@@ -13,6 +13,7 @@ var ApplicationConfiguration = (function() {
 		'ui.utils',
 		'pascalprecht.translate',
 		'ui.select',
+		'ui.sortable',
 		'angulartics',
 		'angulartics.google.analytics'
 	],

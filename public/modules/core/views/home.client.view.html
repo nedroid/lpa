@@ -1,14 +1,14 @@
 <section class="home" data-ng-controller="HomeController" data-ng-init="init()">
 
 	<div>
-    <carousel interval="5000">
-      <slide ng-repeat="slide in slides" active="slide.active" index="slide.id">
+    <uib-carousel interval="5000">
+      <uib-slide ng-repeat="slide in slides" active="slide.active" index="slide.id">
         <img ng-src="{{slide.image}}" style="margin:auto;">
         <div class="carousel-caption">
           <h3 date-ng-show="slide.text">{{slide.text}}</h3>
         </div>
-      </slide>
-    </carousel>
+      </uib-slide>
+    </uib-carousel>
   </div>
 	
 	<div class="panel text-center">

@@ -8,7 +8,7 @@
     "angular-resource": "~1.4",
     "angular-animate": "~1.4",
     "angular-mocks": "~1.4",
-    "angular-bootstrap": "~0.13",
+    "angular-bootstrap": "~1.1",
     "angular-ui-utils": "latest",
     "angular-ui-router": "latest",
     "fontawesome": "~4",
@@ -18,6 +18,7 @@
     "angular-ui-select": "~0.12",
     "d3": "~3.5",
     "messenger": "~1.4",
-    "angular-sanitize": "~1.4"
+    "angular-sanitize": "~1.4",
+    "angular-ui-sortable": "~0.13.4"
   }
 }

@@ -142,6 +142,12 @@ section.home .panel p {
   line-height: 2;
 }
 
+uib-tab-heading i.fa-cog {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
 /* PANELS */
 .panel {
   padding-left: 0;

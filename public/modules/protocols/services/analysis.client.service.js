@@ -308,30 +308,31 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       return fsmLinks;
     }
     
-    function getParentTreeProcess(parentTreeNode, processId) {
+    function getParentTreeProcess(parentTreeNode, processNodeId) {
       var parent;
       parentTreeNode.processes.forEach(function (process) {
-        if (process.nodeId === processId) {
+        if (process.nodeId === processNodeId) {
           parent = process;
         }
       });
       return parent;
     }
 
-    function getProcess(processId) {
+    function getProcess(processNodeId) {
       var process_;
       graph.protocol.processes.nodes.forEach(function(process) {
-        if (process.nodeId === processId) {
+        if (process.nodeId === processNodeId) {
             process_ = process;
         }
       });
       return process_;
     }
 
-    function addToQueue(parentTreeNode, targetProcessId, sourceProcess, msg) {
+    function addToQueue(targetProcessNodeId, sourceProcess, msg) {
       var isAdded = false;
+
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        if (processNode.nodeId === targetProcessId && processNode.queue[sourceProcess._id].values.length < processNode.queue[sourceProcess._id].length) {
+        if (processNode.nodeId === targetProcessNodeId && processNode.queue[sourceProcess._id].values.length < processNode.queue[sourceProcess._id].length) {
           processNode.queue[sourceProcess._id].values.push(msg);
           isAdded = true;
         }
@@ -340,11 +341,11 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       return isAdded;
     }
 
-    function removeFromQueue(parentTreeNode, sourceProcess, targetProcess, msg) {
+    function removeFromQueue(sourceProcessNodeId, targetProcess, msg) {
       var isRemoved = false;
 
       graph.protocol.processes.nodes.forEach(function(processNode) {
-        if (processNode.nodeId === sourceProcess.nodeId) {
+        if (processNode.nodeId === sourceProcessNodeId) {
           var index = processNode.queue[targetProcess._id].values.indexOf(msg);
           if (index >= 0) {
             processNode.queue[targetProcess._id].values.splice(index, 1);
@@ -477,16 +478,18 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
     }
 
     function researchLevel(parentTreeNode, level, isLast) {
+      
+      var priorityProcess = null;
 
       graph.protocol.processes.nodes.forEach(function (sourceProcess) {
 
         getProcessFsmLinks(sourceProcess).forEach(function(link) {
-  
+
           sourceProcess.currrentFsmNode = getParentTreeProcess(parentTreeNode, sourceProcess.nodeId).currrentFsmNode;
-          
+
           if (sourceProcess.currrentFsmNode.nodeId === link.source.nodeId) {
 
-            var 
+            var
             targetProcess = link.processId && getProcess(link.processId) || {},
             action = sourceProcess.label + ': ' + Graph.LINK_TYPE[link.typeId] + link.name + (link.processId && ('(' + targetProcess.label + ')') || '');
 
@@ -504,16 +507,23 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
               });
             });
 
+            var 
+            addToQueueResult = null,
+            removeFromQueueResult = null;
+
             switch(link.typeId) {
               case 'SEND':
-                // damo v queue od procesa na linku (npr. B-ju)
-                if (addToQueue(parentTreeNode, link.processId, sourceProcess, link.name)) {
+                if ((!graph.priority || (!priorityProcess || priorityProcess._id === sourceProcess._id)) &&
+                  (addToQueueResult = addToQueue(link.processId, sourceProcess, link.name))) {
+                  
                   sourceProcess.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action,
                     level: level
                   });
-                } else {
+                  priorityProcess = sourceProcess;
+
+                } else if(addToQueueResult === false) {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.QUEUE_FULL,
                     action: action,
@@ -522,14 +532,18 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                 }
                 break;
               case 'RECEIVE':
-                // ko smo na B-ju ne sprejmemo od A-ja ampak od B-ja (ker smo prej sem poslali)
-                if (removeFromQueue(parentTreeNode, sourceProcess, targetProcess, link.name)) {
+                if ((!graph.priority || (!priorityProcess || priorityProcess._id === sourceProcess._id)) &&
+                  (removeFromQueueResult = removeFromQueue(sourceProcess.nodeId, targetProcess, link.name))) {
+
                   sourceProcess.currrentFsmNode = link.target;
                   addChildNode(parentTreeNode, {
                     action: action,
                     level: level
                   });
-                } else if (getParentTreeProcess(parentTreeNode, sourceProcess.nodeId).queue[targetProcess._id].values.length > 0) {
+                  priorityProcess = sourceProcess;
+                  
+                //} else if (removeFromQueueResult === false && getParentTreeProcess(parentTreeNode, sourceProcess.nodeId).queue[targetProcess._id].values.length > 0) {
+                } else if (removeFromQueueResult === false && sourceProcess.queue[targetProcess._id].values.length > 0) {
                   addChildNode(parentTreeNode, {
                     typeId: NODE_TYPE.UNDEFINED_RECEIVE,
                     action: action,
@@ -561,22 +575,25 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
 
     function collapseAllNodes() {
       graph.svg.selectAll('g.node').each(function(d, i) {
-        var 
-        data = d3.select(this).data(),
-        onClickFunc = d3.select(this).on('click');
-        if (onClickFunc && d3.select(this).data()[0].children) {
-          onClickFunc.apply(this, [d, i]);  
-        }
-      });  
+        if (d.children) {
+          d._children = d.children;
+          d.children = null;
+        } 
+      });
+      update(graph.root);
     }
 
     function drawGraph(protocol) {
-      
+
+      graph.svg.selectAll('*').remove();
+
       graph.protocol = protocol;
       graph.error = false;
       graph.nodesCount = 0;
       graph.normalNodesCount = 0;
       graph.root = null;
+
+      graph.priority = protocol.isPriority;
 
       if(!graph.protocol) {
         Messenger.post('NO_PROTOCOL_TO_ANALYZE', 'error');
@@ -587,6 +604,20 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
       } else {
         Messenger.post('PROTOCOL_HAS_NO_PROCESSES', 'error');
         return;
+      }
+
+      if (graph.priority) {
+        graph.protocol.processes.nodes.sort(function (a, b) {
+          var aIndex, bIndex;
+          protocol.priorityProcesses.forEach(function(p, index_) {
+            if (a.nodeId === p.nodeId) {
+              aIndex = index_;
+            } if (b.nodeId === p.nodeId) {
+              bIndex = index_;
+            }
+          });
+          return aIndex > bIndex;
+        });
       }
 
       // init current process state and queues
@@ -605,7 +636,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
           graph.error = true;
         }
 
-        // processes.length - 1 == number of queues
+        // number of queues == processes.length - 1
         process.queue = {};
         graph.protocol.processes.nodes.forEach(function(process_) {
           if(process !== process_) {

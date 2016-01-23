@@ -36,6 +36,8 @@
 
   "SAVE": "Save",
   "CLOSE": "Close",
+  "CANCEL": "Cancel",
+  "START_ANALYZE": "Analyze",
 
   "BY": "by",
   "FORK": "Fork",
@@ -52,6 +54,9 @@
   "PROTOCOL": "Protocol",
   "ANALYSIS": "Analysis",
   "PROCESS_LIST": "List processes",
+  "ANALYSIS_SETTINGS": "Settings",
+  "PROCESS_PRIORITY": "Processes priority",
+  "PROCESS_PRIORITY_NO_PROCESS": "No process",
 
   "IMPORT_FILE_SUCCESS": "File {0} uploaded successfuly",
   "IMPORT_FILE_ERROR": "File {0} upload failed! You have to upload json file!",
