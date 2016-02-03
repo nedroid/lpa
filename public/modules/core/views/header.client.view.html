@@ -8,7 +8,7 @@
 		</button>
 		<a href="/#!/" class="navbar-brand" data-analytics-on="click" data-analytics-category="navigation" data-analytics-event="home.page">LPAv3</a>
 	</div>
-	<nav class="collapse navbar-collapse" collapse="!isCollapsed" role="navigation">
+	<nav class="collapse navbar-collapse" uib-collapse="!isCollapsed" role="navigation">
 		<ul class="nav navbar-nav" data-ng-if="menu.shouldRender(authentication.user);">
 			<li data-ng-repeat="item in menu.items | orderBy: 'position'" data-ng-if="item.shouldRender(authentication.user);" ng-switch="item.menuItemType" class="{{item.menuItemClass}}" ng-class="{active: $state.includes(item.state)}" dropdown="item.menuItemType === 'dropdown'">
 				<a ng-switch-when="dropdown" class="dropdown-toggle" dropdown-toggle>
