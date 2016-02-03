@@ -2,10 +2,10 @@
 	"LANGUAGE": "SI",
 
 	"APP_DESCRIPTION": "Logični Protokolni Analizator",
-	"APP_INFO": "Aplikacija služi analiziranju prtokolov. Lahko se jo uporablja tudi v offline modu.",
+	"APP_INFO": "Aplikacija služi analiziranju prtokolov. S klikom na zavihek za seznam protokolov se nam odprejo shranjeni protokoli vseh uporabnikov. Ob prijavi se nam prikaže tudi zavihek za kreiranje protokolov, kjer lahko načrtujemo svoj protokol in ga tudi shranimo. Omogočena je tudi prijava z Googlovim računom.",
 	"OFFLINE_APP_DOWNLOAD": "Prenesi offline mode",
 	"APP_AUTHOR": "O avtorju",
-	"APP_AUTHOR_INFO": "Aplikacija je nastala v okviru diplomske naloge.",
+	"APP_AUTHOR_INFO": "Aplikacija je nastala v okviru diplomske naloge. Izvirna koda je objavljena na <a href=\"https://github.com/nejcsilc/lpa\">GitHubu</a> kjer je omogočeno tudi prijavljanje napak oziroma izboljšav. Ivorna koda je sicer <a href=\"mailto:nejc.silc@gmail.com\">moje</a> delo vendar pa je objavljena pod licenco <a href=\"http://opensource.org/licenses/MIT.\" target=\"_blank\">MIT License</a> tako, da jo lahko brez zadržkov preoblikujete ali pa popravljate tudi vi.",
 
 	"SIGNIN": "Prijava",
 	"SIGNUP": "Registracija",
