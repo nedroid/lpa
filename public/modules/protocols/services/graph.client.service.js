@@ -76,7 +76,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
     function random(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
     }
-    
+
     function label(i, type) {
       var label_ = '';
       if(angular.isNumber(i)) {
@@ -414,7 +414,7 @@ angular.module('protocols').factory('Graph', ['$filter', 'd3', 'Messenger', 'Act
           this_.values.svg.start.node = this_.temp.currentNode.select('circle');
           this_.values.data.start.node = node;
           
-          if(!node.isStart) {
+          if(node.isStart) {
             this_.values.svg.start.node
               .style('stroke-width', function(d) { return NODES.STROKE_WIDTH.START_STATE; })
               .style('stroke', function(d) { return NODES.STROKE.START_STATE; });

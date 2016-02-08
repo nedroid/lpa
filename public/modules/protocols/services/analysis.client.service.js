@@ -30,6 +30,7 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
     NODE_TYPE = {
       QUEUE_FULL: 'QUEUE_FULL',
       UNDEFINED_RECEIVE: 'UNDEFINED_RECEIVE',
+      DEAD_LOCK: 'DEAD_LOCK',
       REPEATING: 'REPEATING',
       NORMAL: 'NORMAL'
     };
@@ -198,6 +199,9 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
               break;
             case NODE_TYPE.UNDEFINED_RECEIVE:
               creatTextNode(d3.select(this), 'NS');
+              break;
+            case NODE_TYPE.DEAD_LOCK:
+              creatTextNode(d3.select(this), 'SO');
               break;
             case NODE_TYPE.REPEATING:
               creatTextNode(d3.select(this), getTreeNode(d.repeatingNodeId).normalNodeId);
@@ -549,7 +553,16 @@ angular.module('protocols').factory('Analysis', ['d3', '$window', 'Graph', 'Mess
                     action: action,
                     level: level
                   });
-                }
+                } 
+                //else if (removeFromQueueResult === false) {
+                  // TODO
+                  // preveri ali so vse cakalne vrste prazne in povezave tipa receive za vse procese
+                  //addChildNode(parentTreeNode, {
+                  //  typeId: NODE_TYPE.DEAD_LOCK,
+                  //  action: action,
+                  //  level: level
+                  //});
+                //}
                 break;
               case 'LOCAL':
                 sourceProcess.currrentFsmNode = link.target;
